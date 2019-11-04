@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/xiazeyu/ams/issues"
   },
-  "homepage": "https://github.com/xiazeyu/ams#readme"
+  "homepage": "https://github.com/xiazeyu/ams#readme",
+  "dependencies": {
+    "keyv": "^3.1.0",
+    "keyv-file": "^0.1.13"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.4"
+  }
 }

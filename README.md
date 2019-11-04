@@ -14,6 +14,8 @@ Attendance manage system.
 
 - outDatedAbscence: (extends from abscence)
 
+- count: stuCnt, reaCnt, absCnt, odaCnt
+
 ### Report
 
 - abscence: {{status, count, reason}, ...}

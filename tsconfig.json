@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "esnext",
-    "sourceMap": true
+    "target": "esnext"
   },
   "include": [
     "src/**/*"
-  ],
-  "compileOnSave": true
+  ]
 }

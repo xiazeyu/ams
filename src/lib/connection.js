@@ -1,10 +1,9 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const Keyv = require("keyv");
 const keyv_file_1 = require("keyv-file");
-;
-class Database {
+class Connection {
     constructor(fileName) {
-        this.fileName = fileName;
         this.db = new Keyv({
             'store': new keyv_file_1.default({
                 'filename': fileName,
@@ -15,22 +14,20 @@ class Database {
         });
     }
     ;
-    genFullKeyName(key) {
+    genFullKeyPath(key) {
         return `${key.table}:${key.key}:${key.id}`;
     }
     async set(key, value) {
-        return await this.db.set(this.genFullKeyName(key), value);
+        return await this.db.set(this.genFullKeyPath(key), value);
     }
     async get(key) {
-        return await this.db.get(this.genFullKeyName(key));
+        return await this.db.get(this.genFullKeyPath(key));
     }
     async delete(key) {
-        return await this.db.delete(this.genFullKeyName(key));
+        return await this.db.delete(this.genFullKeyPath(key));
     }
     async clear(flag) {
         return flag ? await this.db.clear() : undefined;
     }
 }
-const currDB = new Database('./store.db');
-module.exports = currDB;
-//# sourceMappingURL=connection.js.map
+exports.Connection = Connection;

@@ -1,139 +1,124 @@
 import { Database, RecordData, RecordKeys } from './lib/recordDatabase'
 
-class Student {
-  constructor(public stuID: Number = 0, public name: String = '') {
+const db = new Database('./storedb.json');
 
+interface ITable {
+  id: Number;
+  tableName: string;
+}
+interface IStudent extends ITable {
+  name: string;
+}
+
+interface IReason extends ITable {
+  name: String;
+}
+
+interface IAbscence extends ITable {
+  student: Student;
+  reason: Reason;
+  dateFrom: Date;
+  dateTo: Date;
+  lesson: Array<Number>;
+}
+
+interface IIndex extends ITable {
+  stuIDs: Array<Number>;
+  reaIDs: Array<Number>;
+  absIDs: Array<Number>;
+  odaIDs: Array<Number>;
+}
+
+class Table {
+  constructor(prop: ITable = { id: 0, tableName: 'table' }) {
+    (this.props = Object.keys(prop)).forEach((propName) => {
+      this[propName] = prop[propName];
+    });
   }
-  showInfo(): undefined {
-    console.log(`stuID: ${this.stuID}, name: ${this.name}`);
-    return;
+  public id: Number = 0;
+  public tableName: string = 'table';
+  public props: Array<string>;
+  public getPropsData() {
+    const t = {};
+    this.props.forEach((propName) => {
+      if (!(propName === 'id' || propName === 'tableName'))
+        t[propName] = this[propName];
+    });
+    return t;
   }
-  private genRecordData(): RecordData {
+  public genRecordData(): RecordData {
     return {
-      id: this.stuID,
-      table: 'student',
-      data: {
-        name: this.name,
-      },
+      id: this.id,
+      table: this.tableName,
+      data: this.getPropsData(),
     };
   }
-  private genRecordKey(): RecordKeys {
+  public genRecordKey(): RecordKeys {
     const dataKeys = Object.keys(this.genRecordData().data);
     return Object.assign(this.genRecordData(), { data: dataKeys });
   }
-  insertToDB(DB: Database): Promise<undefined> {
-    return DB.insertRecord(this.genRecordData());
+  public showInfo(): undefined {
+    console.log(this.props.map((propName) => {
+      return { k: propName, v: this[propName] };
+    }));
+    return undefined;
   }
-  retriveFromDB(DB: Database): Promise<undefined> {
-    return DB.queryRecord(this.genRecordKey()).then((result) => {
+  public insertToDB(): Promise<undefined> {
+    return db.insertRecord(this.genRecordData());
+  }
+  public retriveFromDB(): Promise<undefined> {
+    return db.queryRecord(this.genRecordKey()).then((result) => {
       this.genRecordKey().data.forEach((keyName) => {
         this[keyName] = result.data[keyName];
       });
       return undefined;
     });
   }
-  deleteFromDB(DB: Database): Promise<undefined> {
-    return DB.deleteRecord(this.genRecordKey());
+  public deleteFromDB(): Promise<undefined> {
+    return db.deleteRecord(this.genRecordKey());
   }
 }
 
-class Reason {
-  constructor(public reaID: Number = 0, public name: String = '') {
-
-  }
-  showInfo(): undefined {
-    console.log(`reaID: ${this.reaID}, name: ${this.name}`);
-    return;
-  }
-  private genRecordData(): RecordData {
-    return {
-      id: this.reaID,
-      table: 'reason',
-      data: {
-        name: this.name,
-      },
-    };
-  }
-  private genRecordKey(): RecordKeys {
-    const dataKeys = Object.keys(this.genRecordData().data);
-    return Object.assign(this.genRecordData(), { data: dataKeys });
-  }
-  insertToDB(DB: Database): Promise<undefined> {
-    return DB.insertRecord(this.genRecordData());
-  }
-  retriveFromDB(DB: Database): Promise<undefined> {
-    return DB.queryRecord(this.genRecordKey()).then((result) => {
-      this.genRecordKey().data.forEach((keyName) => {
-        this[keyName] = result.data[keyName];
-      });
-      return undefined;
-    });
-  }
-  deleteFromDB(DB: Database): Promise<undefined> {
-    return DB.deleteRecord(this.genRecordKey());
+class Index extends Table {
+  constructor(prop: IIndex = { id: 0, tableName: 'index', stuIDs: [], reaIDs: [], absIDs: [], odaIDs: [] }) {
+    super(prop);
   }
 }
 
-class Abscence {
-  constructor(public absID: Number, public student: Student, public reason: Reason, public dateFrom: Date, public dateTo: Date, public lesson: Array<Number>) {
+const index = new Index();
 
-  }
-  showInfo(): undefined {
-    console.log(`absID: ${this.absID}, stuName&ID: ${this.student.name}${this.student.stuID}, rea: ${this.reason.name}, date: ${this.dateFrom}`);
-    return;
-  }
-  private genRecordData(): RecordData {
-    return {
-      id: this.absID,
-      table: 'abscence',
-      data: {
-      },
-    };
-  }
-  private genRecordKey(): RecordKeys {
-    const dataKeys = Object.keys(this.genRecordData().data);
-    return Object.assign(this.genRecordData(), { data: dataKeys });
-  }
-  insertToDB(DB: Database): Promise<undefined> {
-    return DB.insertRecord(this.genRecordData());
-  }
-  retriveFromDB(DB: Database): Promise<undefined> {
-    return DB.queryRecord(this.genRecordKey()).then((result) => {
-      this.genRecordKey().data.forEach((keyName) => {
-        this[keyName] = result.data[keyName];
-      });
-      return undefined;
-    });
-  }
-  deleteFromDB(DB: Database): Promise<undefined> {
-    return DB.deleteRecord(this.genRecordKey());
+class Student extends Table {
+  constructor(prop: IStudent = { id: 0, tableName: 'student', name: '' }) {
+    super(prop);
   }
 }
 
-class Index {
-  constructor(public db: Database, public stuIDs: Array<Number> = [], reaIDs: Array<Number> = [], absIDs: Array<Number> = [], odaIDs: Array<Number> = []) {
-
+class Reason extends Table {
+  constructor(prop: IReason = { id: 0, tableName: 'reason', name: '' }) {
+    super(prop);
   }
 }
 
-
-const currDB = new Database('./storedb.json');
-const currIndex = new Index(currDB);
+class Abscence extends Table {
+  constructor(prop: IAbscence = { id: 0, tableName: 'abscence', student: new Student(), reason: new Reason(), dateFrom: new Date(2019, 11, 4), dateTo: new Date(2019, 11, 5), lesson: [0] }) {
+    super(prop);
+  }
+}
 
 async function initReason() {
   const defaultReason = [
-    { reaID: 0, name: '请假' },
-    { reaID: 1, name: '雅思课程' },
-    { reaID: 2, name: '党课' },
-    { reaID: 3, name: '篮球队集训' },
+    { id: 0, name: '请假' },
+    { id: 1, name: '雅思课程' },
+    { id: 2, name: '党课' },
+    { id: 3, name: '篮球队集训' },
   ]
   return Promise.all(defaultReason.map(async (v) => {
     const r = new Reason();
-    r.reaID = v.reaID;
-    await r.retriveFromDB(currDB);
-    if(!(r.name === v.name)){
+    r.id = v.id;
+    await r.retriveFromDB();
+    if (!(r.name === v.name)) {
       r.name = v.name;
-      await r.insertToDB(currDB);
+      await r.insertToDB();
       return true;
     }
     return false;

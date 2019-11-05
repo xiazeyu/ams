@@ -32,7 +32,7 @@ class Database extends Connection {
     return Promise.all(what.data.map(keyName => this.delete({
       id: what.id,
       key: keyName,
-      table: what.table
+      table: what.table,
     }))).then(() => {
       return undefined;
     });

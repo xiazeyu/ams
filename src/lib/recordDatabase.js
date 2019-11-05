@@ -10,14 +10,18 @@ class Database extends connection_1.Connection {
             id: what.id,
             key: keyName,
             table: what.table,
-        }, what.data[keyName])));
+        }, what.data[keyName]))).then(() => {
+            return undefined;
+        });
     }
     deleteRecord(what) {
         return Promise.all(what.data.map(keyName => this.delete({
             id: what.id,
             key: keyName,
             table: what.table
-        })));
+        }))).then(() => {
+            return undefined;
+        });
     }
     queryRecord(what) {
         return Promise.all(what.data.map(keyName => this.get({
@@ -26,8 +30,8 @@ class Database extends connection_1.Connection {
             table: what.table,
         }))).then(resArr => {
             const data = {};
-            resArr.reduce((prev, curr, index) => {
-                return data[what.data[index]] = curr;
+            resArr.forEach((value, index) => {
+                data[what.data[index]] = value;
             });
             return {
                 id: what.id,

@@ -1,40 +1,44 @@
-import {Connection} from './connection';
+import { Connection } from './connection';
 
-interface Record{
+interface Record {
   id: Number;
   table: String;
 }
 
-interface RecordKeys extends Record{
+interface RecordKeys extends Record {
   data: Array<string>;
 }
 
-interface RecordData extends Record{
+interface RecordData extends Record {
   data: Object;
 }
 
-class Database extends Connection{
-  constructor(fileName: string){
+class Database extends Connection {
+  constructor(fileName: string) {
     super(fileName);
   }
 
-  insertRecord(what: RecordData): Promise<Array<Boolean>>{
+  insertRecord(what: RecordData): Promise<undefined> {
     return Promise.all(Object.keys(what.data).map(keyName => this.set({
       id: what.id,
       key: keyName,
       table: what.table,
-    }, what.data[keyName])));
+    }, what.data[keyName]))).then(() => {
+      return undefined;
+    });
   }
 
-  deleteRecord(what: RecordKeys): Promise<Array<Boolean>>{
+  deleteRecord(what: RecordKeys): Promise<undefined> {
     return Promise.all(what.data.map(keyName => this.delete({
       id: what.id,
       key: keyName,
       table: what.table
-    })));
+    }))).then(() => {
+      return undefined;
+    });
   }
 
-  queryRecord(what: RecordKeys): Promise<RecordData>{
+  queryRecord(what: RecordKeys): Promise<RecordData> {
 
     return Promise.all(what.data.map(keyName => this.get({
       id: what.id,
@@ -42,8 +46,8 @@ class Database extends Connection{
       table: what.table,
     }))).then(resArr => {
       const data = {};
-      resArr.reduce((prev, curr, index) => {
-        return data[what.data[index]] = curr;
+      resArr.forEach((value, index) => {
+        data[what.data[index]] = value;
       });
       return {
         id: what.id,
@@ -54,6 +58,8 @@ class Database extends Connection{
   }
 }
 
-export{
+export {
   Database,
+  RecordKeys,
+  RecordData,
 }

@@ -2,10 +2,18 @@ import { Database, RecordData, RecordKeys } from './lib/recordDatabase'
 
 const db = new Database('./storedb.json');
 
+interface IRecordKey {
+  key: string;
+  getMethod: Function;
+  setMethod: Function;
+}
+
 interface ITable {
   id: Number;
   tableName: string;
+  props: Array<IRecordKey>;
 }
+
 interface IStudent extends ITable {
   name: string;
 }
@@ -19,6 +27,7 @@ interface IAbscence extends ITable {
   reason: Reason;
   dateFrom: Date;
   dateTo: Date;
+  week?: Number;
   lesson: Array<Number>;
 }
 
@@ -29,53 +38,51 @@ interface IIndex extends ITable {
   odaIDs: Array<Number>;
 }
 
-class Table {
-  constructor(prop: ITable = { id: 0, tableName: 'table' }) {
-    (this.props = Object.keys(prop)).forEach((propName) => {
-      this[propName] = prop[propName];
-    });
+class Table implements ITable {
+  public id: Number;
+  public tableName: string;
+  public props: Array<IRecordKey>;
+  constructor(val: ITable = { id: 0, tableName: 'table', props: [] }) {
+    this.id = val.id;
+    this.tableName = val.tableName;
+    this.props = [];
   }
-  public id: Number = 0;
-  public tableName: string = 'table';
-  public props: Array<string>;
-  public getPropsData() {
-    const t = {};
-    this.props.forEach((propName) => {
-      if (!(propName === 'id' || propName === 'tableName'))
-        t[propName] = this[propName];
-    });
-    return t;
+  public getInstData() {
+    return this.props.reduce((acc, cur) => {
+      acc[cur.key] = cur.setMethod(this[cur.key]);
+      return acc;
+    }, {});
   }
-  public genRecordData(): RecordData {
+  public genInstData(): RecordData {
     return {
       id: this.id,
       table: this.tableName,
-      data: this.getPropsData(),
+      data: this.getInstData(),
     };
   }
-  public genRecordKey(): RecordKeys {
-    const dataKeys = Object.keys(this.genRecordData().data);
-    return Object.assign(this.genRecordData(), { data: dataKeys });
+  public genKeys(): RecordKeys {
+    const keysArr = Object.keys(this.getInstData());
+    return Object.assign(this.genInstData(), { data: keysArr });
   }
   public showInfo(): undefined {
     console.log(this.props.map((propName) => {
-      return { k: propName, v: this[propName] };
+      return { k: propName, v: this[propName.key] };
     }));
     return undefined;
   }
   public insertToDB(): Promise<undefined> {
-    return db.insertRecord(this.genRecordData());
+    return db.insertRecord(this.genInstData());
   }
   public retriveFromDB(): Promise<undefined> {
-    return db.queryRecord(this.genRecordKey()).then((result) => {
-      this.genRecordKey().data.forEach((keyName) => {
-        this[keyName] = result.data[keyName];
+    return db.queryRecord(this.genKeys()).then((result) => {
+      this.props.forEach((val) => {
+        this[val.key] = val.getMethod(result.data[val.key]);
       });
       return undefined;
     });
   }
   public deleteFromDB(): Promise<undefined> {
-    return db.deleteRecord(this.genRecordKey());
+    return db.deleteRecord(this.genKeys());
   }
 }
 

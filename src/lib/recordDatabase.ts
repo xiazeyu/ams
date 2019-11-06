@@ -39,20 +39,18 @@ class Database extends Connection {
   }
 
   queryRecord(what: RecordKeys): Promise<RecordData> {
-
     return Promise.all(what.data.map(keyName => this.get({
       id: what.id,
       key: keyName,
       table: what.table,
     }))).then(resArr => {
-      const data = {};
-      resArr.forEach((value, index) => {
-        data[what.data[index]] = value;
-      });
       return {
         id: what.id,
         table: what.table,
-        data: data,
+        data: resArr.reduce((acc, cur, ind) => {
+          acc[what.data[ind]] = cur;
+          return acc;
+        }, {}),
       };
     });
   }

@@ -39,7 +39,6 @@ interface IIndex {
   stuIDs: Array<Number>;
   reaIDs: Array<Number>;
   absIDs: Array<Number>;
-  odaIDs: Array<Number>;
 }
 
 class Table implements ITable {
@@ -97,7 +96,6 @@ class Index extends Table implements ITable, IIndex {
   public stuIDs: Array<Number>;
   public reaIDs: Array<Number>;
   public absIDs: Array<Number>;
-  public odaIDs: Array<Number>;
   constructor(val?: IIndex) {
     super({
       id: 0,
@@ -106,14 +104,12 @@ class Index extends Table implements ITable, IIndex {
         { key: 'stuIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
         { key: 'reaIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
         { key: 'absIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-        { key: 'odaIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val, {
       stuIDs: [],
       reaIDs: [],
       absIDs: [],
-      odaIDs: [],
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
@@ -139,6 +135,19 @@ class Student extends Table implements ITable, IStudent {
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
+  public async insertToDB(): Promise<undefined>{
+    index.stuIDs.push(this.id);
+    await index.insertToDB();
+    return super.insertToDB();
+  }
+  public async deleteFromDB(): Promise<undefined>{
+    index.stuIDs.forEach((cur, ind) => {
+      if(cur === this.id)
+        index.stuIDs[ind] = undefined;
+    });
+    await index.insertToDB();
+    return super.deleteFromDB();
+  }
 }
 
 class Reason extends Table implements ITable, IReason {
@@ -155,6 +164,19 @@ class Reason extends Table implements ITable, IReason {
       name: '',
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
+  }
+  public async insertToDB(): Promise<undefined>{
+    index.reaIDs.push(this.id);
+    await index.insertToDB();
+    return super.insertToDB();
+  }
+  public async deleteFromDB(): Promise<undefined>{
+    index.reaIDs.forEach((cur, ind) => {
+      if(cur === this.id)
+        index.reaIDs[ind] = undefined;
+    });
+    await index.insertToDB();
+    return super.deleteFromDB();
   }
 }
 
@@ -187,6 +209,19 @@ class Abscence extends Table implements ITable, IAbscence {
       lesson: [0],
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
+  }
+  public async insertToDB(): Promise<undefined>{
+    index.absIDs.push(this.id);
+    await index.insertToDB();
+    return super.insertToDB();
+  }
+  public async deleteFromDB(): Promise<undefined>{
+    index.absIDs.forEach((cur, ind) => {
+      if(cur === this.id)
+        index.absIDs[ind] = undefined;
+    });
+    await index.insertToDB();
+    return super.deleteFromDB();
   }
 }
 

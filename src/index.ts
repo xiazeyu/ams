@@ -19,9 +19,30 @@ async function initReason() {
   });
 }
 
+async function initStudent() {
+  return Promise.all(defaultStudent.map(async (v) => {
+    const s = new Student();
+    s.id = JSON.parse(v['学号']);
+    await s.retriveFromDB();
+    if (!(s.name === v['姓名'])) {
+      s.name = v['姓名'];
+      s.phone = JSON.parse(v['手机号']);
+      await s.insertToDB();
+      return true;
+    }
+    return false;
+  })).then((r) => {
+    console.log(r);
+    return undefined;
+  });
+}
+
 async function playground() {
 
 }
 
-initReason();
-playground();
+index.retriveFromDB().then(() => {
+  initReason();
+  initStudent();
+  playground();
+});

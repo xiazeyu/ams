@@ -58,14 +58,12 @@ class Index extends Table {
                 { key: 'stuIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
                 { key: 'reaIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
                 { key: 'absIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-                { key: 'odaIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
             ],
         });
         val = Object.assign(val, {
             stuIDs: [],
             reaIDs: [],
             absIDs: [],
-            odaIDs: [],
         });
         Object.keys(val).forEach(key => this[key] = val[key]);
     }
@@ -88,6 +86,19 @@ class Student extends Table {
         });
         Object.keys(val).forEach(key => this[key] = val[key]);
     }
+    async insertToDB() {
+        index.stuIDs.push(this.id);
+        await index.insertToDB();
+        return super.insertToDB();
+    }
+    async deleteFromDB() {
+        index.stuIDs.forEach((cur, ind) => {
+            if (cur === this.id)
+                index.stuIDs[ind] = undefined;
+        });
+        await index.insertToDB();
+        return super.deleteFromDB();
+    }
 }
 exports.Student = Student;
 class Reason extends Table {
@@ -103,6 +114,19 @@ class Reason extends Table {
             name: '',
         });
         Object.keys(val).forEach(key => this[key] = val[key]);
+    }
+    async insertToDB() {
+        index.reaIDs.push(this.id);
+        await index.insertToDB();
+        return super.insertToDB();
+    }
+    async deleteFromDB() {
+        index.reaIDs.forEach((cur, ind) => {
+            if (cur === this.id)
+                index.reaIDs[ind] = undefined;
+        });
+        await index.insertToDB();
+        return super.deleteFromDB();
     }
 }
 exports.Reason = Reason;
@@ -129,6 +153,19 @@ class Abscence extends Table {
             lesson: [0],
         });
         Object.keys(val).forEach(key => this[key] = val[key]);
+    }
+    async insertToDB() {
+        index.absIDs.push(this.id);
+        await index.insertToDB();
+        return super.insertToDB();
+    }
+    async deleteFromDB() {
+        index.absIDs.forEach((cur, ind) => {
+            if (cur === this.id)
+                index.absIDs[ind] = undefined;
+        });
+        await index.insertToDB();
+        return super.deleteFromDB();
     }
 }
 exports.Abscence = Abscence;

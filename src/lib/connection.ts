@@ -1,7 +1,7 @@
 import * as Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
-interface FullKeyPath {
+interface IFullKeyPath {
   id: Number;
   key: String;
   table: String;
@@ -22,19 +22,19 @@ class Connection {
     });
   };
 
-  private genFullKeyPath(key: FullKeyPath): String {
+  private genFullKeyPath(key: IFullKeyPath): String {
     return `${key.table}:${key.key}:${key.id}`;
   }
 
-  async set(key: FullKeyPath, value: string): Promise<Boolean> {
+  async set(key: IFullKeyPath, value: string): Promise<Boolean> {
     return await this.db.set(this.genFullKeyPath(key), value);
   }
 
-  async get(key: FullKeyPath): Promise<String> {
+  async get(key: IFullKeyPath): Promise<String> {
     return await this.db.get(this.genFullKeyPath(key));
   }
 
-  async delete(key: FullKeyPath): Promise<Boolean> {
+  async delete(key: IFullKeyPath): Promise<Boolean> {
     return await this.db.delete(this.genFullKeyPath(key));
   }
 

@@ -1,15 +1,15 @@
 import { Connection } from './connection';
 
-interface Record {
+interface IRecord {
   id: Number;
   table: String;
 }
 
-interface RecordKeys extends Record {
+interface IRecordKeys extends IRecord {
   data: Array<string>;
 }
 
-interface RecordData extends Record {
+interface IRecordData extends IRecord {
   data: Object;
 }
 
@@ -18,7 +18,7 @@ class Database extends Connection {
     super(fileName);
   }
 
-  insertRecord(what: RecordData): Promise<undefined> {
+  insertRecord(what: IRecordData): Promise<undefined> {
     return Promise.all(Object.keys(what.data).map(keyName => this.set({
       id: what.id,
       key: keyName,
@@ -28,7 +28,7 @@ class Database extends Connection {
     });
   }
 
-  deleteRecord(what: RecordKeys): Promise<undefined> {
+  deleteRecord(what: IRecordKeys): Promise<undefined> {
     return Promise.all(what.data.map(keyName => this.delete({
       id: what.id,
       key: keyName,
@@ -38,7 +38,7 @@ class Database extends Connection {
     });
   }
 
-  queryRecord(what: RecordKeys): Promise<RecordData> {
+  queryRecord(what: IRecordKeys): Promise<IRecordData> {
     return Promise.all(what.data.map(keyName => this.get({
       id: what.id,
       key: keyName,
@@ -58,6 +58,6 @@ class Database extends Connection {
 
 export {
   Database,
-  RecordKeys,
-  RecordData,
+  IRecordKeys,
+  IRecordData,
 }

@@ -4,7 +4,7 @@ const recordDatabase_1 = require("./lib/recordDatabase");
 const db = new recordDatabase_1.Database('../data/storedb.json');
 class Table {
     constructor(val) {
-        val = Object.assign(val, {
+        val = Object.assign(val || {}, {
             id: 0,
             tableName: 'table',
             props: [],
@@ -40,7 +40,7 @@ class Table {
     async retriveFromDB() {
         return await db.queryRecord(await this.genKeys()).then(async (retData) => {
             return await Promise.all(this.props.map(val => val.getMethod(retData.data[val.key]))).then(async (result) => {
-                result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur));
+                result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur), undefined);
                 return await this.genInstData();
             });
         });
@@ -60,7 +60,7 @@ class Index extends Table {
                 { key: 'absIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
             ],
         });
-        val = Object.assign(val, {
+        val = Object.assign(val || {}, {
             stuIDs: [],
             reaIDs: [],
             absIDs: [],
@@ -80,7 +80,7 @@ class Student extends Table {
                 { key: 'phone', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
             ],
         });
-        val = Object.assign(val, {
+        val = Object.assign(val || {}, {
             name: '',
             phone: 0,
         });
@@ -110,7 +110,7 @@ class Reason extends Table {
                 { key: 'name', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
             ],
         });
-        val = Object.assign(val, {
+        val = Object.assign(val || {}, {
             name: '',
         });
         Object.keys(val).forEach(key => this[key] = val[key]);
@@ -144,7 +144,7 @@ class Abscence extends Table {
                 { key: 'lesson', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
             ],
         });
-        val = Object.assign(val, {
+        val = Object.assign(val || {}, {
             student: new Student(),
             reason: new Reason(),
             dateFrom: new Date(2019, 11, 4),
@@ -169,3 +169,4 @@ class Abscence extends Table {
     }
 }
 exports.Abscence = Abscence;
+//# sourceMappingURL=tables.js.map

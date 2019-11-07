@@ -46,7 +46,7 @@ class Table implements ITable {
   public tableName: string;
   public props: Array<IRecordKey>;
   constructor(val?: ITable) {
-    val = Object.assign(val, {
+    val = Object.assign(val || {}, {
       id: 0,
       tableName: 'table',
       props: [],
@@ -82,7 +82,7 @@ class Table implements ITable {
   public async retriveFromDB(): Promise<IRecordData> {
     return await db.queryRecord(await this.genKeys()).then(async (retData) => {
       return await Promise.all(this.props.map(val => val.getMethod(retData.data[val.key]))).then(async result => {
-        result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur));
+        result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur), undefined);
         return await this.genInstData();
       });
     });
@@ -96,7 +96,7 @@ class Index extends Table implements ITable, IIndex {
   public stuIDs: Array<Number>;
   public reaIDs: Array<Number>;
   public absIDs: Array<Number>;
-  constructor(val?: IIndex) {
+  constructor(val?: IIndex | {}) {
     super({
       id: 0,
       tableName: 'index',
@@ -106,7 +106,7 @@ class Index extends Table implements ITable, IIndex {
         { key: 'absIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
       ],
     });
-    val = Object.assign(val, {
+    val = Object.assign(val || {}, {
       stuIDs: [],
       reaIDs: [],
       absIDs: [],
@@ -120,7 +120,7 @@ const index = new Index();
 class Student extends Table implements ITable, IStudent {
   public name: string;
   public phone?: Number;
-  constructor(val?: IStudent) {
+  constructor(val?: IStudent|{}) {
     super({
       id: 0,
       tableName: 'student',
@@ -129,7 +129,7 @@ class Student extends Table implements ITable, IStudent {
         { key: 'phone', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
       ],
     });
-    val = Object.assign(val, {
+    val = Object.assign(val || {}, {
       name: '',
       phone: 0,
     });
@@ -152,7 +152,7 @@ class Student extends Table implements ITable, IStudent {
 
 class Reason extends Table implements ITable, IReason {
   public name: string;
-  constructor(val?: IReason) {
+  constructor(val?: IReason | {}) {
     super({
       id: 0,
       tableName: 'reason',
@@ -160,7 +160,7 @@ class Reason extends Table implements ITable, IReason {
         { key: 'name', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
       ],
     });
-    val = Object.assign(val, {
+    val = Object.assign(val || {}, {
       name: '',
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
@@ -187,7 +187,7 @@ class Abscence extends Table implements ITable, IAbscence {
   public dateTo: Date;
   public week: Number;
   public lesson: Array<Number>;
-  constructor(val?: IAbscence) {
+  constructor(val?: IAbscence | {}) {
     super({
       id: 0,
       tableName: 'abscence',
@@ -200,7 +200,7 @@ class Abscence extends Table implements ITable, IAbscence {
         { key: 'lesson', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
       ],
     });
-    val = Object.assign(val, {
+    val = Object.assign(val || {}, {
       student: new Student(),
       reason: new Reason(),
       dateFrom: new Date(2019, 11, 4),

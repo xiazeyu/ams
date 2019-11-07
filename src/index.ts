@@ -1,9 +1,9 @@
 import { index, Student, Reason, Abscence } from './tables';
-import * as defaultReason from '../data/defRea.json';
-import * as defaultStudent from '../data/defStu.json';
+import {defRea} from '../data/defRea.js';
+import {defStu} from '../data/defStu.js';
 
 async function initReason() {
-  return Promise.all(defaultReason.map(async (v) => {
+  return Promise.all(defRea.map(async (v) => {
     const r = new Reason();
     r.id = v.id;
     await r.retriveFromDB();
@@ -20,7 +20,7 @@ async function initReason() {
 }
 
 async function initStudent() {
-  return Promise.all(defaultStudent.map(async (v) => {
+  return Promise.all(defStu.map(async (v) => {
     const s = new Student();
     s.id = JSON.parse(v['学号']);
     await s.retriveFromDB();

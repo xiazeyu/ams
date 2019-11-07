@@ -41,3 +41,4 @@ class Database extends connection_1.Connection {
     }
 }
 exports.Database = Database;
+//# sourceMappingURL=recordDatabase.js.map

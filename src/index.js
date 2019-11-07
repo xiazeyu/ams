@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tables_1 = require("./tables");
-const defaultReason = require("../data/defRea.json");
-const defaultStudent = require("../data/defStu.json");
+const defRea_js_1 = require("../data/defRea.js");
+const defStu_js_1 = require("../data/defStu.js");
 async function initReason() {
-    return Promise.all(defaultReason.map(async (v) => {
+    return Promise.all(defRea_js_1.defRea.map(async (v) => {
         const r = new tables_1.Reason();
         r.id = v.id;
         await r.retriveFromDB();
@@ -20,7 +20,7 @@ async function initReason() {
     });
 }
 async function initStudent() {
-    return Promise.all(defaultStudent.map(async (v) => {
+    return Promise.all(defStu_js_1.defStu.map(async (v) => {
         const s = new tables_1.Student();
         s.id = JSON.parse(v['学号']);
         await s.retriveFromDB();
@@ -43,3 +43,4 @@ tables_1.index.retriveFromDB().then(() => {
     initStudent();
     playground();
 });
+//# sourceMappingURL=index.js.map

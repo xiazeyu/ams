@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "sourceMap": true
   },
   "include": [
     "src/**/*"

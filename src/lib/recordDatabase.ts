@@ -1,16 +1,9 @@
 import { Connection } from './connection';
 
-interface IRecord {
-  id: Number;
-  table: String;
-}
-
-interface IRecordKeys extends IRecord {
-  data: Array<string>;
-}
-
-interface IRecordData extends IRecord {
-  data: Object;
+interface IRecord<T extends string[] | {}> {
+  id: number;
+  table: string;
+  data: T;
 }
 
 class Database extends Connection {
@@ -18,7 +11,7 @@ class Database extends Connection {
     super(fileName);
   }
 
-  insertRecord(what: IRecordData): Promise<undefined> {
+  async insertRecord(what: IRecord<{}>): Promise<undefined> {
     return Promise.all(Object.keys(what.data).map(keyName => this.set({
       id: what.id,
       key: keyName,
@@ -28,7 +21,7 @@ class Database extends Connection {
     });
   }
 
-  deleteRecord(what: IRecordKeys): Promise<undefined> {
+  async deleteRecord(what: IRecord<string[]>): Promise<undefined> {
     return Promise.all(what.data.map(keyName => this.delete({
       id: what.id,
       key: keyName,
@@ -38,7 +31,7 @@ class Database extends Connection {
     });
   }
 
-  queryRecord(what: IRecordKeys): Promise<IRecordData> {
+  async queryRecord(what: IRecord<string[]>): Promise<IRecord<{}>> {
     return Promise.all(what.data.map(keyName => this.get({
       id: what.id,
       key: keyName,
@@ -58,6 +51,5 @@ class Database extends Connection {
 
 export {
   Database,
-  IRecordKeys,
-  IRecordData,
+  IRecord,
 }

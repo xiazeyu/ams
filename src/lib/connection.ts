@@ -2,9 +2,9 @@ import * as Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
 interface IFullKeyPath {
-  id: Number;
-  key: String;
-  table: String;
+  id: number;
+  key: string;
+  table: string;
 }
 
 class Connection {
@@ -22,19 +22,19 @@ class Connection {
     });
   };
 
-  private genFullKeyPath(key: IFullKeyPath): String {
+  private genFullKeyPath(key: IFullKeyPath): string {
     return `${key.table}:${key.key}:${key.id}`;
   }
 
-  async set(key: IFullKeyPath, value: string): Promise<Boolean> {
+  protected async set(key: IFullKeyPath, value: string): Promise<boolean> {
     return await this.db.set(this.genFullKeyPath(key), value);
   }
 
-  async get(key: IFullKeyPath): Promise<String> {
+  protected async get(key: IFullKeyPath): Promise<string> {
     return await this.db.get(this.genFullKeyPath(key));
   }
 
-  async delete(key: IFullKeyPath): Promise<Boolean> {
+  protected async delete(key: IFullKeyPath): Promise<boolean> {
     return await this.db.delete(this.genFullKeyPath(key));
   }
 

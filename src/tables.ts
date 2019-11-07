@@ -1,50 +1,52 @@
-import { Database, IRecordData, IRecordKeys } from './lib/recordDatabase'
+import { Database, IRecord } from './lib/recordDatabase'
 
-const db = new Database('../data/storedb.json');
+const db = new Database('data/storedb.json');
+
+type usedTypes = number|string|IStudent|IReason|Date|number[];
 
 interface IRecordKey {
   key: string;
-  getMethod: Function;
-  setMethod: Function;
+  getMethod: (val: string) => Promise<usedTypes>;
+  setMethod: (val: usedTypes) => Promise<string>;
 }
 
 interface ITable {
-  id: Number;
+  id: number;
   tableName: string;
-  props: Array<IRecordKey>;
+  props: IRecordKey[];
 }
 
 interface IStudent {
-  id: Number | any;
-  name?: string;
-  phone?: Number;
+  id: number;
+  name: string;
+  phone?: number;
 }
 
 interface IReason {
-  id: Number | any;
-  name?: string;
+  id: number;
+  name: string;
 }
 
 interface IAbscence {
-  id: Number;
-  student?: IStudent;
-  reason?: IReason;
-  dateFrom?: Date;
-  dateTo?: Date;
-  week?: Number;
-  lesson?: Array<Number>;
+  id: number;
+  student: IStudent;
+  reason: IReason;
+  dateFrom: Date;
+  dateTo: Date;
+  week: number[];
+  lesson: number[];
 }
 
 interface IIndex {
-  stuIDs: Array<Number>;
-  reaIDs: Array<Number>;
-  absIDs: Array<Number>;
+  stuIDs: number[];
+  reaIDs: number[];
+  absIDs: number[];
 }
 
 class Table implements ITable {
-  public id: Number;
-  public tableName: string;
-  public props: Array<IRecordKey>;
+  id: number;
+  tableName: string;
+  props: IRecordKey[];
   constructor(val?: ITable) {
     val = Object.assign(val || {}, {
       id: 0,
@@ -53,57 +55,65 @@ class Table implements ITable {
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
-  public async getInstData(): Promise<Object> {
+  getInstKey(): IRecord<string[]> {
+    return {
+      id: this.id,
+      table: this.tableName,
+      data: this.props.reduce((acc, cur) => {
+        acc.push(cur);
+        return acc;
+      }, []),
+    }
+  }
+  async genInstData(): Promise<{}> {
     return this.props.reduce(async (acc, cur) => {
       acc[cur.key] = await cur.setMethod(this[cur.key]);
       return acc;
     }, {});
   }
-  public async genInstData(): Promise<IRecordData> {
+  async getInstData(): Promise<IRecord<{}>> {
     return {
       id: this.id,
       table: this.tableName,
-      data: await this.getInstData(),
+      data: await this.genInstData(),
     };
   }
-  public async genKeys(): Promise<IRecordKeys> {
-    const keysArr = Object.keys(await this.getInstData());
-    return Object.assign(await this.genInstData(), { data: keysArr });
-  }
-  public showInfo(): undefined {
+  showInfo(): undefined {
     console.log(this.props.map((propName) => {
       return { k: propName, v: this[propName.key] };
     }));
     return undefined;
   }
-  public async insertToDB(): Promise<undefined> {
-    return await db.insertRecord(await this.genInstData());
+  async insertToDB(): Promise<undefined> {
+    return await db.insertRecord(await this.getInstData());
   }
-  public async retriveFromDB(): Promise<IRecordData> {
-    return await db.queryRecord(await this.genKeys()).then(async (retData) => {
+  async retriveFromDB(): Promise<this> {
+    return await db.queryRecord(await this.getInstKey()).then(async (retData) => {
       return await Promise.all(this.props.map(val => val.getMethod(retData.data[val.key]))).then(async result => {
         result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur), undefined);
-        return await this.genInstData();
+        return this;
       });
     });
   }
-  public async deleteFromDB(): Promise<undefined> {
-    return await db.deleteRecord(await this.genKeys());
+  async deleteFromDB(): Promise<this> {
+    return await db.deleteRecord(await this.getInstKey()).then(() => {
+      return this;
+    });
   }
 }
 
 class Index extends Table implements ITable, IIndex {
-  public stuIDs: Array<Number>;
-  public reaIDs: Array<Number>;
-  public absIDs: Array<Number>;
+  stuIDs: number[];
+  reaIDs: number[];
+  absIDs: number[];
   constructor(val?: IIndex | {}) {
     super({
       id: 0,
       tableName: 'index',
       props: [
-        { key: 'stuIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-        { key: 'reaIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-        { key: 'absIDs', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
+        { key: 'stuIDs', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'reaIDs', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'absIDs', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val || {}, {
@@ -118,15 +128,15 @@ class Index extends Table implements ITable, IIndex {
 const index = new Index();
 
 class Student extends Table implements ITable, IStudent {
-  public name: string;
-  public phone?: Number;
+  name: string;
+  phone?: number;
   constructor(val?: IStudent|{}) {
     super({
       id: 0,
       tableName: 'student',
       props: [
-        { key: 'name', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-        { key: 'phone', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
+        { key: 'name', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
+        { key: 'phone', getMethod: async a => JSON.parse(a) as number, setMethod: async (a: number) => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val || {}, {
@@ -135,12 +145,12 @@ class Student extends Table implements ITable, IStudent {
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
-  public async insertToDB(): Promise<undefined>{
+  async insertToDB(): Promise<undefined>{
     index.stuIDs.push(this.id);
     await index.insertToDB();
     return super.insertToDB();
   }
-  public async deleteFromDB(): Promise<undefined>{
+  async deleteFromDB(): Promise<this>{
     index.stuIDs.forEach((cur, ind) => {
       if(cur === this.id)
         index.stuIDs[ind] = undefined;
@@ -151,13 +161,13 @@ class Student extends Table implements ITable, IStudent {
 }
 
 class Reason extends Table implements ITable, IReason {
-  public name: string;
+  name: string;
   constructor(val?: IReason | {}) {
     super({
       id: 0,
       tableName: 'reason',
       props: [
-        { key: 'name', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
+        { key: 'name', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val || {}, {
@@ -165,12 +175,12 @@ class Reason extends Table implements ITable, IReason {
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
-  public async insertToDB(): Promise<undefined>{
+  async insertToDB(): Promise<undefined>{
     index.reaIDs.push(this.id);
     await index.insertToDB();
     return super.insertToDB();
   }
-  public async deleteFromDB(): Promise<undefined>{
+  async deleteFromDB(): Promise<this>{
     index.reaIDs.forEach((cur, ind) => {
       if(cur === this.id)
         index.reaIDs[ind] = undefined;
@@ -181,23 +191,23 @@ class Reason extends Table implements ITable, IReason {
 }
 
 class Abscence extends Table implements ITable, IAbscence {
-  public student: Student;
-  public reason: Reason;
-  public dateFrom: Date;
-  public dateTo: Date;
-  public week: Number;
-  public lesson: Array<Number>;
+  student: Student;
+  reason: Reason;
+  dateFrom: Date;
+  dateTo: Date;
+  week: number[];
+  lesson: number[];
   constructor(val?: IAbscence | {}) {
     super({
       id: 0,
       tableName: 'abscence',
       props: [
-        { key: 'student', getMethod: a => { const t = new Student({ id: JSON.parse(a) }); t.retriveFromDB(); return t; }, setMethod: a => JSON.stringify(a.id) },
-        { key: 'reason', getMethod: a => { const t = new Reason({ id: JSON.parse(a) }); t.retriveFromDB(); return t; }, setMethod: a => JSON.stringify(a.id) },
-        { key: 'dateFrom', getMethod: a => new Date(JSON.parse(a)), setMethod: a => JSON.stringify(a.toDateString()) },
-        { key: 'dateTo', getMethod: a => new Date(JSON.parse(a)), setMethod: a => JSON.stringify(a.toDateString()) },
-        { key: 'week', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
-        { key: 'lesson', getMethod: a => JSON.parse(a), setMethod: a => JSON.stringify(a) },
+        { key: 'student', getMethod: async a => new Student({ id: JSON.parse(a) }).retriveFromDB(), setMethod: async (a: Student) => JSON.stringify(a.id) },
+        { key: 'reason', getMethod: async a => new Reason({ id: JSON.parse(a) }).retriveFromDB(), setMethod: async (a: Reason) => JSON.stringify(a.id) },
+        { key: 'dateFrom', getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
+        { key: 'dateTo', getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
+        { key: 'week', getMethod: async a => JSON.parse(a) as number, setMethod: async (a: number) => JSON.stringify(a) },
+        { key: 'lesson', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val || {}, {
@@ -210,12 +220,12 @@ class Abscence extends Table implements ITable, IAbscence {
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
-  public async insertToDB(): Promise<undefined>{
+  async insertToDB(): Promise<undefined>{
     index.absIDs.push(this.id);
     await index.insertToDB();
     return super.insertToDB();
   }
-  public async deleteFromDB(): Promise<undefined>{
+  async deleteFromDB(): Promise<this>{
     index.absIDs.forEach((cur, ind) => {
       if(cur === this.id)
         index.absIDs[ind] = undefined;
@@ -226,6 +236,7 @@ class Abscence extends Table implements ITable, IAbscence {
 }
 
 export {
+  db,
   index,
   Student,
   Reason,

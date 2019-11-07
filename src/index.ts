@@ -1,6 +1,6 @@
 import { index, Student, Reason, Abscence } from './tables';
-import {defRea} from '../data/defRea.js';
-import {defStu} from '../data/defStu.js';
+import { defRea } from '../data/defRea.js';
+import { defStu } from '../data/defStu.js';
 
 async function initReason() {
   return Promise.all(defRea.map(async (v) => {
@@ -41,8 +41,8 @@ async function playground() {
 
 }
 
-index.retriveFromDB().then(() => {
-  initReason();
-  initStudent();
-  playground();
-});
+(async () => {
+  await index.retriveFromDB();
+  await initReason();
+  await initStudent();
+})()

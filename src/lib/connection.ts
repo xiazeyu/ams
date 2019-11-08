@@ -7,7 +7,7 @@ interface IFullKeyPath {
   table: string;
 }
 
-class Connection {
+export class Connection {
 
   private readonly db: Keyv;
 
@@ -42,8 +42,4 @@ class Connection {
     return flag ? await this.db.clear() : undefined;
   }
 
-}
-
-export {
-  Connection,
 }

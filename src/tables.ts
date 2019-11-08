@@ -1,8 +1,8 @@
-import { Database, IRecord } from './lib/recordDatabase'
+import { Database, IRecord } from './lib/database'
 
-const db = new Database('data/storedb.json');
+const db = new Database('./data/storedb.json');
 
-type usedTypes = number|string|IStudent|IReason|Date|number[];
+type usedTypes = number|string|IStudent|Date|number[];
 
 interface IRecordKey {
   key: string;
@@ -22,15 +22,11 @@ interface IStudent {
   phone?: number;
 }
 
-interface IReason {
-  id: number;
-  name: string;
-}
-
 interface IAbscence {
   id: number;
   student: IStudent;
-  reason: IReason;
+  reason: string;
+  detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
   week: number[];
@@ -39,7 +35,6 @@ interface IAbscence {
 
 interface IIndex {
   stuIDs: number[];
-  reaIDs: number[];
   absIDs: number[];
 }
 
@@ -160,39 +155,10 @@ class Student extends Table implements ITable, IStudent {
   }
 }
 
-class Reason extends Table implements ITable, IReason {
-  name: string;
-  constructor(val?: IReason | {}) {
-    super({
-      id: 0,
-      tableName: 'reason',
-      props: [
-        { key: 'name', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
-      ],
-    });
-    val = Object.assign(val || {}, {
-      name: '',
-    });
-    Object.keys(val).forEach(key => this[key] = val[key]);
-  }
-  async insertToDB(): Promise<undefined>{
-    index.reaIDs.push(this.id);
-    await index.insertToDB();
-    return super.insertToDB();
-  }
-  async deleteFromDB(): Promise<this>{
-    index.reaIDs.forEach((cur, ind) => {
-      if(cur === this.id)
-        index.reaIDs[ind] = undefined;
-    });
-    await index.insertToDB();
-    return super.deleteFromDB();
-  }
-}
-
 class Abscence extends Table implements ITable, IAbscence {
   student: Student;
-  reason: Reason;
+  reason: string;
+  detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
   week: number[];
@@ -203,20 +169,22 @@ class Abscence extends Table implements ITable, IAbscence {
       tableName: 'abscence',
       props: [
         { key: 'student', getMethod: async a => new Student({ id: JSON.parse(a) }).retriveFromDB(), setMethod: async (a: Student) => JSON.stringify(a.id) },
-        { key: 'reason', getMethod: async a => new Reason({ id: JSON.parse(a) }).retriveFromDB(), setMethod: async (a: Reason) => JSON.stringify(a.id) },
+        { key: 'reason', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a.id) },
+        { key: 'detailedReason', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a.id) },
         { key: 'dateFrom', getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
         { key: 'dateTo', getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
-        { key: 'week', getMethod: async a => JSON.parse(a) as number, setMethod: async (a: number) => JSON.stringify(a) },
+        { key: 'week', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
         { key: 'lesson', getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     });
     val = Object.assign(val || {}, {
       student: new Student(),
-      reason: new Reason(),
+      reason: '',
+      detailedReason: '',
       dateFrom: new Date(2019, 11, 4),
       dateTo: new Date(2019, 11, 5),
-      week: 0,
-      lesson: [0],
+      week: [],
+      lesson: [],
     });
     Object.keys(val).forEach(key => this[key] = val[key]);
   }
@@ -239,6 +207,5 @@ export {
   db,
   index,
   Student,
-  Reason,
   Abscence,
 }

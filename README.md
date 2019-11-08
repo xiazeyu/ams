@@ -1,20 +1,10 @@
 # ams
 
-Attendance manage system.
+Attendance managing system.
 
 ## Structure
 
 ### Tables
-
-- student: stuID, name
-
-- reason: reaID, name
-
-- abscence: absID, stuID, reaID, dateFrom, dateTo, lesson(, img)
-
-- outDatedAbscence: (extends from abscence)
-
-- index: stuIDs[0], reaIDs[0], absIDs[0], odaIDs[0]
 
 lessonTime:
 
@@ -42,20 +32,6 @@ lessonTime:
 
 12 20.10-20.55
 
-### Report
-
-- abscence: {{status, count, reason}, ...}
-
-### Trasaction
-
-- kickOutDatedAbscence: abscence -> outDatedAbscence
-
-- addAbscence: -> abscence
-
-- editAbscence: -> abscence
-
-- deleteAbscence: -> abscence
-
 ### key-name rules
 
 TableName:keyName:ID
@@ -64,18 +40,12 @@ TableName:keyName:ID
 
 ### Layer 1 Connection
 
-The layer is just string to string key-valve pairs realized by keyv.
+The layer is record to string key-valve pairs realized by keyv.
 
-### Layer 2 Record Database
+### Layer 2 Database
 
 The layer is the layer which support table-like operation based on ID.
 
 ### Layer 3 Application
 
 This layer need to convert all kinds of values into string in order to communicate with layer 2.
-
-## Todo
-
-- koa
-
-- jest

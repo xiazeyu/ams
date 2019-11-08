@@ -1,6 +1,6 @@
-import { index, Student, Reason, Abscence } from './tables';
-import { defRea } from '../data/defRea.js';
-import { defStu } from '../data/defStu.js';
+import { index, Student, Abscence } from './src/tables';
+import { defRea } from './data/defRea.js';
+import { defStu } from './data/defStu.js';
 
 async function initReason() {
   return Promise.all(defRea.map(async (v) => {

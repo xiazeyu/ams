@@ -93,6 +93,15 @@ describe('Table - layer 3', () => {
 
   });
 
+
+  describe('Student()', () => {
+    const Test = new Table.Student();
+  });
+
+  describe('Abscence()', () => {
+    const Test = new Table.Abscence();
+  });
+
   test('db.clear(true)', async () => {
     expect(await Table.db.clear(true)).toBeUndefined();
   });

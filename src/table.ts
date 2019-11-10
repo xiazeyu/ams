@@ -159,16 +159,16 @@ export class Student extends Table implements ITable, IStudent {
       ],
     }, val)
   }
-  getByID() {
+  async getByID(): Promise<this> {
 
   }
-  getByName() {
+  async getByName(): Promise<this> {
 
   }
-  getStatus(time: Date, lesson: number) {
+  async getStatus(time: Date, lesson: number): Promise<IStuStatus> {
 
   }
-  getCurrStatus() {
+  async getCurrStatus(): Promise<IStuStatus> {
 
   }
 }
@@ -196,10 +196,10 @@ export class Abscence extends Table implements ITable, IAbscence {
       ],
     }, val);
   }
-  getByID() {
+  getByID(): Promise<this> {
 
   }
-  isActive(time: Date, lesson: number) {
+  isActive(time: Date, lesson: number): Promise<boolean> {
 
   }
 }

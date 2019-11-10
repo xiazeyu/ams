@@ -2,10 +2,11 @@
   "name": "ams",
   "version": "1.0.0",
   "description": "Attendance managing system.",
-  "main": "./src/index.js",
+  "main": "./index.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "start": "cross-env DB_ADDRESS=./data/storedb.json ts-node index.ts",
+    "test": "cross-env DB_ADDRESS=./test/testdb.json jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -18,14 +19,16 @@
   },
   "homepage": "https://github.com/xiazeyu/ams#readme",
   "dependencies": {
+    "cross-env": "^6.0.3",
     "keyv": "^3.1.0",
-    "keyv-file": "^0.1.13"
+    "keyv-file": "^0.1.13",
+    "ts-node": "^8.4.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.22",
+    "@types/node": "^12.12.7",
     "jest": "^24.9.0",
     "ts-jest": "^24.1.0",
-    "ts-node": "^8.4.1",
     "typescript": "^3.7.2"
   }
 }

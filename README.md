@@ -46,6 +46,6 @@ The layer is record to string key-valve pairs realized by keyv.
 
 The layer is the layer which support table-like operation based on ID.
 
-### Layer 3 Application
+### Layer 3 Table
 
 This layer need to convert all kinds of values into string in order to communicate with layer 2.

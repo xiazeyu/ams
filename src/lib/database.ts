@@ -7,8 +7,8 @@ export interface IRecord<T extends string[] | {}> {
 }
 
 export class Database extends Connection {
-  constructor(fileName: string) {
-    super(fileName);
+  constructor() {
+    super();
   }
 
   insertRecord(what: IRecord<{}>): Promise<boolean[]> {

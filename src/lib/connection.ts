@@ -9,16 +9,18 @@ interface IFullKeyPath {
 
 export class Connection {
 
-  private readonly db: Keyv;
+  readonly db: Keyv;
 
-  constructor(fileName: string) {
+  constructor() {
+    if (!process.env.DB_ADDRESS)
+      throw new Error(`Connection expect a DB_ADDRESS, got ${process.env.DB_ADDRESS}, check process.env.DB_ADDRESS.`);
     this.db = new Keyv({
       'store': new KeyvFile({
-        'filename': fileName,
+        'filename': process.env.DB_ADDRESS,
       }),
     });
     this.db.on('error', err => {
-      console.log('Connection error', err);
+      throw new Error(err);
     });
   };
 

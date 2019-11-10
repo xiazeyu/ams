@@ -1,4 +1,6 @@
-import { index, Student, Abscence } from './src/tables';
+process.env.DB_ADDRESS = './data/storedb.json';
+
+import { index, Student, Abscence } from './src/table';
 import { defRea } from './data/defRea.js';
 import { defStu } from './data/defStu.js';
 

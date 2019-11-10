@@ -2,19 +2,12 @@ const fs = require('fs');
 const Database = require('../src/lib/database');
 
 function getRecordArr(o) {
-  return {
-    id: o.id,
-    table: o.table,
-    data: Object.keys(o.data),
-  };
+  return Object.assign({}, o, { data: Object.keys(o.data) });
 }
 
 describe('Database - layer 2', () => {
-  const dbPath = './test/test.db';
-  if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath);
-  }
-  const db = new Database.Database(dbPath);
+  if (fs.existsSync(process.env.DB_ADDRESS)) fs.unlinkSync(process.env.DB_ADDRESS);
+  const db = new Database.Database();
   const testdata = {
     key1: 'val1',
     key2: 'val2',
@@ -24,7 +17,6 @@ describe('Database - layer 2', () => {
     table: 'table1',
     data: testdata,
   };
-
 
   test('recordArr', () => {
     expect(getRecordArr(recordObj1)).toStrictEqual({
@@ -85,7 +77,7 @@ describe('Database - layer 2', () => {
       key2: 'val4',
     };
     test('insert record2(val3, val4)', async () => {
-      expect(await db.insertRecord(Object.assign(recordObj, { data: testdata2 }))).toStrictEqual([true, true]);
+      expect(await db.insertRecord(Object.assign({}, recordObj, { data: testdata2 }))).toStrictEqual([true, true]);
     });
     test('query record2(val3, val4)', async () => {
       expect(await db.queryRecord(getRecordArr(recordObj))).toStrictEqual(testdata2);

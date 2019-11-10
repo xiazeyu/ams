@@ -2,16 +2,29 @@ const fs = require('fs');
 const Connection = require('../src/lib/connection');
 
 describe('Connection - layer 1', () => {
-  const dbPath = './test/test.db';
-  if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath);
-  }
-  const db = new Connection.Connection(dbPath);
+  if (fs.existsSync(process.env.DB_ADDRESS)) fs.unlinkSync(process.env.DB_ADDRESS);
+  const db = new Connection.Connection();
   const key1 = {
     id: '0',
     key: 'key1',
     table: 'table1',
   };
+  describe('errors', () => {
+    test('db.emit("error")', () => {
+      expect(() => {
+        db.db.emit('error', 'test');
+      }).toThrowError('test');
+    });
+    test('no DB_ADDRESS', () => {
+      jest.resetModules();
+      const oldDBPath = process.env.DB_ADDRESS;
+      delete process.env.DB_ADDRESS;
+      expect(() => {
+        new Connection.Connection();
+      }).toThrowError(`Connection expect a DB_ADDRESS, got undefined, check process.env.DB_ADDRESS.`);
+      process.env.DB_ADDRESS = oldDBPath;
+    });
+  });
   describe('record1: set, get', () => {
     test('set key1 = 1', async () => {
       expect(await db.set(key1, 1)).toBe(true);

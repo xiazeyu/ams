@@ -1,6 +1,6 @@
 import { Database, IRecord } from './lib/database';
 
-const db = new Database();
+export const db = new Database();
 
 type usedTypes = number | IStudent | string | Date | number | number[];
 type usedTables = ITable | IStudent | IAbscence | IIndex;
@@ -55,33 +55,33 @@ export class Table implements ITable {
       return acc;
     }, {}), val || {})).forEach(key => this[key] = val[key]);
   }
-  getInstKey(): IRecord<string[]> {
-    return {
-      id: this.id,
-      table: this.tableName,
-      data: this.props.reduce((acc, cur) => {
-        acc.push(cur);
-        return acc;
-      }, []),
-    }
+  getInstKey(): string[] {
+    return this.props.reduce((acc, cur) => {
+      acc.push(cur.key);
+      return acc;
+    }, []);
   }
-  async getInstData(): Promise<IRecord<{}>> {
-    return {
-      id: this.id,
-      table: this.tableName,
-      data: await this.props.reduce(async (acc, cur) => {
-        acc[cur.key] = await cur.setMethod(this[cur.key]);
-        return acc;
-      }, {}),
-    };
+  async getInstData(): Promise<{}> {
+    return Promise.all(this.props.map(val => val.setMethod(this[val.key]))).then(res => res.reduce((acc, cur, ind) => {
+      acc[this.getInstKey()[ind]] = cur;
+      return acc;
+    }, {}));
   }
   async insertToDB(): Promise<this> {
-    return db.insertRecord(await this.getInstData()).then(() => {
+    return db.insertRecord({
+      id: this.id,
+      table: this.tableName,
+      data: await this.getInstData(),
+    }).then(() => {
       return this;
     });
   }
   async retriveFromDB(): Promise<this> {
-    return db.queryRecord(this.getInstKey()).then(retData => {
+    return db.queryRecord({
+      id: this.id,
+      table: this.tableName,
+      data: this.getInstKey(),
+    }).then(retData => {
       return Promise.all(this.props.map(val => val.getMethod(retData[val.key]))).then(result => {
         result.reduce(((acc, cur, ind) => this[this.props[ind].key] = cur), undefined);
         return this;
@@ -89,7 +89,11 @@ export class Table implements ITable {
     });
   }
   async deleteFromDB(): Promise<this> {
-    return db.deleteRecord(this.getInstKey()).then(() => {
+    return db.deleteRecord({
+      id: this.id,
+      table: this.tableName,
+      data: this.getInstKey(),
+    }).then(() => {
       return this;
     });
   }

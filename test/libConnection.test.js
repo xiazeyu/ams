@@ -1,8 +1,6 @@
-const fs = require('fs');
 const Connection = require('../src/lib/connection');
 
 describe('Connection - layer 1', () => {
-  if (fs.existsSync(process.env.DB_ADDRESS)) fs.unlinkSync(process.env.DB_ADDRESS);
   const db = new Connection.Connection();
   const key1 = {
     id: '0',

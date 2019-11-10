@@ -1,4 +1,3 @@
-const fs = require('fs');
 const Database = require('../src/lib/database');
 
 function getRecordArr(o) {
@@ -6,7 +5,6 @@ function getRecordArr(o) {
 }
 
 describe('Database - layer 2', () => {
-  if (fs.existsSync(process.env.DB_ADDRESS)) fs.unlinkSync(process.env.DB_ADDRESS);
   const db = new Database.Database();
   const testdata = {
     key1: 'val1',

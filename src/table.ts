@@ -40,6 +40,13 @@ export interface IIndex {
   abs: number[];
 }
 
+export interface IStuStatus {
+  name: string;
+  status: '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
+  reason: string;
+  detailedReason: string;
+}
+
 export class Table implements ITable {
   id: number;
   tableName: string;
@@ -107,27 +114,31 @@ class Index extends Table implements ITable, IIndex {
       id: 0,
       tableName: 'index',
       props: [
-        { key: 'stu', defaultValue: [], getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
-        { key: 'abs', defaultValue: [], getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'stu', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'abs', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     }, val);
   }
   async addID(key: string, id: number): Promise<this> {
-    await this.retriveFromDB();
     if (this[key] === undefined)
       throw new Error(`${key} does not exist in the index table.`);
+    await this.retriveFromDB();
+
     await this.delID(key, id);
     (this[key] as number[]).push(id);
+
     await this.insertToDB();
     return this;
   }
   async delID(key: string, id: number): Promise<this> {
-    await this.retriveFromDB();
     if (this[key] === undefined)
       throw new Error(`${key} does not exist in the index table.`);
-    this[key] = (this[key] as number[]).reduce((acc, cur, ind) => {
-      return cur === id ? acc.splice(ind, 1) : cur;
-    }, this[key] as number[]);
+    await this.retriveFromDB();
+
+    this[key] = (this[key] as number[]).reduce((acc, cur) => {
+      return cur === id ? acc : acc.push(cur), acc;
+    }, []);
+
     await this.insertToDB();
     return this;
   }
@@ -143,10 +154,21 @@ export class Student extends Table implements ITable, IStudent {
       id: 0,
       tableName: 'student',
       props: [
-        { key: 'name', defaultValue: '', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
-        { key: 'phone', defaultValue: 0, getMethod: async a => JSON.parse(a) as number, setMethod: async (a: number) => JSON.stringify(a) },
+        { key: 'name', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
+        { key: 'phone', defaultValue: 0, getMethod: async a => JSON.parse(a || '0') as number, setMethod: async (a: number) => JSON.stringify(a) },
       ],
-    }, val);
+    }, val)
+  }
+  getByID() {
+
+  }
+  getByName() {
+
+  }
+  getStatus(time: Date, lesson: number) {
+
+  }
+  getCurrStatus() {
 
   }
 }
@@ -164,14 +186,20 @@ export class Abscence extends Table implements ITable, IAbscence {
       id: 0,
       tableName: 'abscence',
       props: [
-        { key: 'student', defaultValue: new Student(), getMethod: async a => new Student({ id: JSON.parse(a) }).retriveFromDB(), setMethod: async (a: Student) => JSON.stringify(a.id) },
-        { key: 'reason', defaultValue: '', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
-        { key: 'detailedReason', defaultValue: '', getMethod: async a => JSON.parse(a) as string, setMethod: async (a: string) => JSON.stringify(a) },
-        { key: 'dateFrom', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
-        { key: 'dateTo', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a)), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
-        { key: 'week', defaultValue: [], getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
-        { key: 'lesson', defaultValue: [], getMethod: async a => JSON.parse(a) as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'student', defaultValue: new Student(), getMethod: async a => new Student({ id: JSON.parse(a || '0') }).retriveFromDB(), setMethod: async (a: Student) => JSON.stringify(a.id) },
+        { key: 'reason', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
+        { key: 'detailedReason', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
+        { key: 'dateFrom', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a || 'Wed Dec 04 2019')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
+        { key: 'dateTo', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a || '"Thu Dec 05 2019"')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
+        { key: 'week', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'lesson', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     }, val);
+  }
+  getByID() {
+
+  }
+  isActive(time: Date, lesson: number) {
+
   }
 }

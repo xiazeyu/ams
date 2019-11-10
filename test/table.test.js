@@ -61,6 +61,38 @@ describe('Table - layer 3', () => {
     test('getInstData()', async () => expect(await Test2.getInstData()).toStrictEqual(tiDatas));
     test('deleteFromDB()', async () => expect(await Test2.deleteFromDB()).toBeInstanceOf(Table.Table));
   });
+
+  describe('index()', () => {
+    const Test = Table.index;
+    test('getStu', () => expect(Test.stu).toStrictEqual([]));
+    test('getAbs', () => expect(Test.abs).toStrictEqual([]));
+    test('addID("notExist")', async () => {
+      expect.assertions(1);
+      await expect(Test.addID('notExist', 1)).rejects.toEqual(new Error('notExist does not exist in the index table.'));
+    });
+    test('delID("notExist")', async () => {
+      expect.assertions(1);
+      await expect(Test.delID('notExist', 1)).rejects.toEqual(new Error('notExist does not exist in the index table.'));
+    });
+    test('addID("stu", 111)', async () => expect(await Test.addID('stu', 111)).toMatchObject(Test));
+    test('getStu', () => expect(Test.stu).toStrictEqual([111]));
+    test('addID("stu", 222)', async () => expect(await Test.addID('stu', 222)).toMatchObject(Test));
+    test('getStu', () => expect(Test.stu).toStrictEqual([111, 222]));
+    test('delID("stu", 111)', async () => expect(await Test.delID('stu', 111)).toMatchObject(Test));
+    test('getStu', () => expect(Test.stu).toStrictEqual([222]));
+    test('delID("stu", 222)', async () => expect(await Test.delID('stu', 222)).toMatchObject(Test));
+    test('getStu', () => expect(Test.stu).toStrictEqual([]));
+    test('addID("abs", 111)', async () => expect(await Test.addID('abs', 111)).toMatchObject(Test));
+    test('getAbs', () => expect(Test.abs).toStrictEqual([111]));
+    test('addID("abs", 222)', async () => expect(await Test.addID('abs', 222)).toMatchObject(Test));
+    test('getAbs', () => expect(Test.abs).toStrictEqual([111, 222]));
+    test('delID("abs", 111)', async () => expect(await Test.delID('abs', 111)).toMatchObject(Test));
+    test('getAbs', () => expect(Test.abs).toStrictEqual([222]));
+    test('delID("abs", 222)', async () => expect(await Test.delID('abs', 222)).toMatchObject(Test));
+    test('getAbs', () => expect(Test.abs).toStrictEqual([]));
+
+  });
+
   test('db.clear(true)', async () => {
     expect(await Table.db.clear(true)).toBeUndefined();
   });

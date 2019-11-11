@@ -19,9 +19,7 @@ export class Connection {
         'filename': process.env.DB_ADDRESS,
       }),
     });
-    this.db.on('error', err => {
-      throw new Error(err);
-    });
+    this.db.on('error', err => {throw new Error(err)});
   };
 
   private genFullKeyPath(key: IFullKeyPath): string {

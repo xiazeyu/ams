@@ -32,9 +32,6 @@ export class Database extends Connection {
       id: what.id,
       key: val,
       table: what.table,
-    })))).reduce((acc, cur, ind) => {
-      acc[what.data[ind]] = cur;
-      return acc;
-    }, {});
+    })))).reduce((acc, cur, ind) => (acc[what.data[ind]] = cur, acc), {});
   }
 }

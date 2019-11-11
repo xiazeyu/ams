@@ -17,12 +17,12 @@ describe('Table - layer 3', () => {
       id: 1,
       tableName: 'testTable',
       props: [
-        { key: 'testStr1', defaultValue: 'str1', getMethod: async a => JSON.parse(a), setMethod: async a => JSON.stringify(a) },
-        { key: 'testDate1', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a)), setMethod: async a => JSON.stringify(a.toDateString()) },
-        { key: 'testArr1', defaultValue: [1, 2], getMethod: async a => JSON.parse(a), setMethod: async a => JSON.stringify(a) },
-        { key: 'testStr2', defaultValue: 'str2', getMethod: async a => JSON.parse(a), setMethod: async a => JSON.stringify(a) },
-        { key: 'testDate2', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a)), setMethod: async a => JSON.stringify(a.toDateString()) },
-        { key: 'testArr2', defaultValue: [3, 4], getMethod: async a => JSON.parse(a), setMethod: async a => JSON.stringify(a) },
+        { key: 'testStr1', defaultValue: 'str1', getMethod: async a => JSON.parse(a || '"str1"'), setMethod: async a => JSON.stringify(a) },
+        { key: 'testDate1', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a || '"Wed Dec 04 2019"')), setMethod: async a => JSON.stringify(a.toDateString()) },
+        { key: 'testArr1', defaultValue: [1, 2], getMethod: async a => JSON.parse(a || '[1, 2]'), setMethod: async a => JSON.stringify(a) },
+        { key: 'testStr2', defaultValue: 'str2', getMethod: async a => JSON.parse(a || '"str2"'), setMethod: async a => JSON.stringify(a) },
+        { key: 'testDate2', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a || '"Thu Dec 05 2019"')), setMethod: async a => JSON.stringify(a.toDateString()) },
+        { key: 'testArr2', defaultValue: [3, 4], getMethod: async a => JSON.parse(a || '[3, 4]'), setMethod: async a => JSON.stringify(a) },
       ],
     };
     const p2 = {
@@ -38,6 +38,14 @@ describe('Table - layer 3', () => {
       testStr2: 'str3',
       testDate2: new Date(2019, 11, 10),
       testArr2: [5, 6],
+    };
+    const dDatas = {
+      testStr1: 'str1',
+      testDate1: new Date(2019, 11, 4),
+      testArr1: [1, 2],
+      testStr2: 'str2',
+      testDate2: new Date(2019, 11, 5),
+      testArr2: [3, 4],
     };
     const tiDatas = {
       testStr1: JSON.stringify('str1'),
@@ -60,6 +68,8 @@ describe('Table - layer 3', () => {
     test('getInstKey()', () => expect(Test2.getInstKey()).toStrictEqual(tProps));
     test('getInstData()', async () => expect(await Test2.getInstData()).toStrictEqual(tiDatas));
     test('deleteFromDB()', async () => expect(await Test2.deleteFromDB()).toBeInstanceOf(Table.Table));
+    test('retriveFromDB()', async () => expect(await Test2.retriveFromDB()).toBeInstanceOf(Table.Table));
+    test('props', () => Object.keys(dDatas).forEach(key => typeof Test2[key] === 'object' ? expect(Test2[key]).toStrictEqual(dDatas[key]) : expect(Test2[key]).toBe(dDatas[key])));
   });
 
   describe('index()', () => {
@@ -94,12 +104,39 @@ describe('Table - layer 3', () => {
   });
 
 
-  describe('Student()', () => {
-    const Test = new Table.Student();
+  describe('Student', () => {
+    describe('Student(basicTest)', () => {
+      const Test = new Table.Student();
+      test('id', () => expect(Test.id).toBe(0));
+      test('tableName', () => expect(Test.tableName).toBe('student'));
+      test('name', () => expect(Test.name).toBe(''));
+      test('phone', () => expect(Test.phone).toBe(0));
+      test('insertToDB()', async () => expect(await Test.insertToDB()).toBeInstanceOf(Table.Student));
+      test('checkIndex(stu)', () => expect(Table.index.stu).toStrictEqual([0]));
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Student));
+      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Student));
+      test('checkIndex(stu)', () => expect(Table.index.stu).toStrictEqual([]));
+    });
   });
 
-  describe('Abscence()', () => {
-    const Test = new Table.Abscence();
+  describe('Abscence', () => {
+    describe('Abscence(basicTest)', () => {
+      const Test = new Table.Abscence();
+      test('id', () => expect(Test.id).toBe(0));
+      test('tableName', () => expect(Test.tableName).toBe('abscence'));
+      test('student', () => expect(Test.student).toBeInstanceOf(Table.Student));
+      test('reason', () => expect(Test.reason).toBe(''));
+      test('detailedReason', () => expect(Test.detailedReason).toBe(''));
+      test('dateFrom', () => expect(Test.dateFrom).toBeInstanceOf(Date));
+      test('dateTo', () => expect(Test.dateTo).toBeInstanceOf(Date));
+      test('week', () => expect(Test.week).toStrictEqual([]));
+      test('lesson', () => expect(Test.lesson).toStrictEqual([]));
+      test('insertToDB()', async () => expect(await Test.insertToDB()).toBeInstanceOf(Table.Abscence));
+      test('checkIndex(stu)', () => expect(Table.index.abs).toStrictEqual([0]));
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Abscence));
+      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
+      test('checkIndex(stu)', () => expect(Table.index.abs).toStrictEqual([]));
+    });
   });
 
   test('db.clear(true)', async () => {

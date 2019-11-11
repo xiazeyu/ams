@@ -43,8 +43,8 @@ export interface IIndex {
 export interface IStuStatus {
   name: string;
   status: '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
-  reason: string;
-  detailedReason: string;
+  reason?: string;
+  detailedReason?: string;
 }
 
 export class Table implements ITable {
@@ -57,22 +57,15 @@ export class Table implements ITable {
       tableName: 'table',
       props: [],
     }, table || {})).forEach(key => this[key] = table[key]);
-    Object.keys(val = Object.assign(this.props.reduce((acc, cur) => {
-      acc[cur.key] = cur.defaultValue;
-      return acc;
-    }, {}), val || {})).forEach(key => this[key] = val[key]);
+    Object.keys(val = Object.assign(this.props.reduce((acc, cur) => (acc[cur.key] = cur.defaultValue, acc), {}), val || {}))
+      .forEach(key => this[key] = val[key]);
   }
   getInstKey(): string[] {
-    return this.props.reduce((acc, cur) => {
-      acc.push(cur.key);
-      return acc;
-    }, []);
+    return this.props.reduce((acc, cur) => (acc.push(cur.key), acc), []);
   }
   async getInstData(): Promise<{}> {
-    return Promise.all(this.props.map(val => val.setMethod(this[val.key]))).then(res => res.reduce((acc, cur, ind) => {
-      acc[this.getInstKey()[ind]] = cur;
-      return acc;
-    }, {}));
+    return Promise.all(this.props.map(val => val.setMethod(this[val.key])))
+      .then(res => res.reduce((acc, cur, ind) => (acc[this.getInstKey()[ind]] = cur, acc), {}));
   }
   async insertToDB(): Promise<this> {
     return db.insertRecord({
@@ -159,17 +152,35 @@ export class Student extends Table implements ITable, IStudent {
       ],
     }, val)
   }
+  async insertToDB(): Promise<this> {
+    await index.addID('stu', this.id);
+    return super.insertToDB();
+  }
+  async deleteFromDB(): Promise<this> {
+    await index.delID('stu', this.id);
+    return super.deleteFromDB();
+  }
   async getByID(): Promise<this> {
-
+    return this;
   }
   async getByName(): Promise<this> {
-
+    return this;
   }
   async getStatus(time: Date, lesson: number): Promise<IStuStatus> {
-
+    return {
+      name: '',
+      status: '到场',
+      reason: '',
+      detailedReason: '',
+    };
   }
   async getCurrStatus(): Promise<IStuStatus> {
-
+    return {
+      name: '',
+      status: '到场',
+      reason: '',
+      detailedReason: '',
+    };
   }
 }
 
@@ -189,17 +200,25 @@ export class Abscence extends Table implements ITable, IAbscence {
         { key: 'student', defaultValue: new Student(), getMethod: async a => new Student({ id: JSON.parse(a || '0') }).retriveFromDB(), setMethod: async (a: Student) => JSON.stringify(a.id) },
         { key: 'reason', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
         { key: 'detailedReason', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
-        { key: 'dateFrom', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a || 'Wed Dec 04 2019')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
+        { key: 'dateFrom', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a || '"Wed Dec 04 2019"')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
         { key: 'dateTo', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a || '"Thu Dec 05 2019"')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
         { key: 'week', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
         { key: 'lesson', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
       ],
     }, val);
   }
-  getByID(): Promise<this> {
-
+  async insertToDB(): Promise<this> {
+    await index.addID('abs', this.id);
+    return super.insertToDB();
   }
-  isActive(time: Date, lesson: number): Promise<boolean> {
-
+  async deleteFromDB(): Promise<this> {
+    await index.delID('abs', this.id);
+    return super.deleteFromDB();
+  }
+  async getByID(): Promise<this> {
+    return this;
+  }
+  async isActive(time: Date, lesson: number): Promise<boolean> {
+    return false;
   }
 }

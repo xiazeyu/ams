@@ -4,6 +4,9 @@ export const db = new Database();
 
 type usedTypes = number | IStudent | string | Date | number | number[];
 type usedTables = ITable | IStudent | IAbscence | IIndex;
+type weekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type lesson = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+type stuStatus = '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
 
 interface IRecordKey<T extends usedTypes> {
   key: string;
@@ -31,8 +34,8 @@ export interface IAbscence {
   detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
-  week: number[];
-  lesson: number[];
+  weekDays: weekDay[];
+  lessons: lesson[];
 }
 
 export interface IIndex {
@@ -42,7 +45,7 @@ export interface IIndex {
 
 export interface IStuStatus {
   name: string;
-  status: '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
+  status: stuStatus;
   reason?: string;
   detailedReason?: string;
 }
@@ -160,11 +163,20 @@ export class Student extends Table implements ITable, IStudent {
     await index.delID('stu', this.id);
     return super.deleteFromDB();
   }
-  async getByID(): Promise<this> {
-    return this;
-  }
-  async getByName(): Promise<this> {
-    return this;
+  async getByName(name: string): Promise<this> {
+    return Promise.all(index.stu.map(async (val) => {
+      const t = new Student();
+      t.id = val;
+      await t.retriveFromDB();
+      return t;
+    })).then(async (resArr) => {
+      this.id = resArr.reduce((acc, cur) => {
+        if (cur.name === name) return cur.id;
+        return acc;
+      }, 0)
+      await this.retriveFromDB();
+      return this;
+    });
   }
   async getStatus(time: Date, lesson: number): Promise<IStuStatus> {
     return {
@@ -190,8 +202,8 @@ export class Abscence extends Table implements ITable, IAbscence {
   detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
-  week: number[];
-  lesson: number[];
+  weekDays: weekDay[];
+  lessons: lesson[];
   constructor(val?: IAbscence | {}) {
     super({
       id: 0,
@@ -202,8 +214,8 @@ export class Abscence extends Table implements ITable, IAbscence {
         { key: 'detailedReason', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
         { key: 'dateFrom', defaultValue: new Date(2019, 11, 4), getMethod: async a => new Date(JSON.parse(a || '"Wed Dec 04 2019"')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
         { key: 'dateTo', defaultValue: new Date(2019, 11, 5), getMethod: async a => new Date(JSON.parse(a || '"Thu Dec 05 2019"')), setMethod: async (a: Date) => JSON.stringify(a.toDateString()) },
-        { key: 'week', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
-        { key: 'lesson', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as number[], setMethod: async (a: number[]) => JSON.stringify(a) },
+        { key: 'weekDays', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as weekDay[], setMethod: async (a: weekDay[]) => JSON.stringify(a) },
+        { key: 'lessons', defaultValue: [], getMethod: async a => JSON.parse(a || '[]') as lesson[], setMethod: async (a: lesson[]) => JSON.stringify(a) },
       ],
     }, val);
   }
@@ -215,10 +227,13 @@ export class Abscence extends Table implements ITable, IAbscence {
     await index.delID('abs', this.id);
     return super.deleteFromDB();
   }
-  async getByID(): Promise<this> {
-    return this;
-  }
   async isActive(time: Date, lesson: number): Promise<boolean> {
+    if ((this.dateFrom <= time) && (this.dateTo >= time)){
+      if (!this.weekDays.length) {
+        return this.weekDays.includes(time.getUTCDay() as weekDay);
+      }
+      return true;
+    }
     return false;
   }
 }

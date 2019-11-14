@@ -129,13 +129,26 @@ describe('Table - layer 3', () => {
       test('detailedReason', () => expect(Test.detailedReason).toBe(''));
       test('dateFrom', () => expect(Test.dateFrom).toBeInstanceOf(Date));
       test('dateTo', () => expect(Test.dateTo).toBeInstanceOf(Date));
-      test('week', () => expect(Test.week).toStrictEqual([]));
-      test('lesson', () => expect(Test.lesson).toStrictEqual([]));
+      test('weekDays', () => expect(Test.weekDays).toStrictEqual([]));
+      test('lessons', () => expect(Test.lessons).toStrictEqual([]));
       test('insertToDB()', async () => expect(await Test.insertToDB()).toBeInstanceOf(Table.Abscence));
       test('checkIndex(stu)', () => expect(Table.index.abs).toStrictEqual([0]));
       test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Abscence));
       test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
       test('checkIndex(stu)', () => expect(Table.index.abs).toStrictEqual([]));
+    });
+    describe('Abscence(fullTest)', () => {
+      const Test = new Table.Abscence();
+      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Abscence));
+      test('id', () => expect(Test.id).toBe(0));
+      test('student', () => expect(Test.student.id).toBe(0));
+      test('reason', () => expect(Test.reason).toBe('NOTFOUND'));
+      test('detailedReason', () => expect(Test.detailedReason).toBe('NOTFOUND'));
+      test('dateFrom', () => expect(Test.dateFrom.toDateString()).toBe('Wed Dec 04 2019'));
+      test('dateTo', () => expect(Test.dateTo.toDateString()).toBe('Thu Dec 05 2019'));
+      test('weekDays', () => expect(Test.weekDays).toStrictEqual([]));
+      test('lessons', () => expect(Test.lessons).toStrictEqual([]));
     });
   });
 

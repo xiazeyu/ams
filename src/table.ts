@@ -46,7 +46,6 @@ export interface IIndex {
 export interface IStuStatus {
   name: string;
   status: stuStatus;
-  reason?: string;
   detailedReason?: string;
 }
 
@@ -182,7 +181,7 @@ export class Student extends Table implements ITable, IStudent {
 
 export class Abscence extends Table implements ITable, IAbscence {
   student: Student;
-  reason: string;
+  reason: stuStatus;
   detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
@@ -222,19 +221,14 @@ export class Abscence extends Table implements ITable, IAbscence {
     return false;
   }
   async getStatus(time: Date, lesson: lesson): Promise<IStuStatus> {
+    await this.student.retriveFromDB();
     return {
-      name: '',
-      status: '到场',
-      reason: '',
-      detailedReason: '',
+      name: this.student.name,
+      status: this.isActive(time, lesson) ? this.reason : '到场' as stuStatus,
+      detailedReason: this.isActive(time, lesson) ? this.detailedReason : '',
     };
   }
-  async getCurrStatus(): Promise<IStuStatus> {
-    return {
-      name: '',
-      status: '到场',
-      reason: '',
-      detailedReason: '',
-    };
+  async getCurrStatus(lesson: lesson): Promise<IStuStatus> {
+    return await this.getStatus(new Date(), lesson);
   }
 }

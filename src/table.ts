@@ -30,7 +30,7 @@ export interface IStudent {
 export interface IAbscence {
   id: number;
   student: IStudent;
-  reason: string;
+  reason: stuStatus;
   detailedReason: string;
   dateFrom: Date;
   dateTo: Date;
@@ -211,9 +211,9 @@ export class Abscence extends Table implements ITable, IAbscence {
     return super.deleteFromDB();
   }
   isActive(time: Date, lesson: lesson): boolean {
-    if(this.lessons.length && !this.lessons.includes(lesson))
+    if (this.lessons.length && !this.lessons.includes(lesson))
       return false;
-    if ((this.dateFrom <= time) && (this.dateTo >= time)){
+    if ((this.dateFrom <= time) && (this.dateTo >= time)) {
       if (this.weekDays.length)
         return this.weekDays.includes(time.getDay() as weekDay);
       return true;

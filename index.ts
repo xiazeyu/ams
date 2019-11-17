@@ -25,13 +25,17 @@ async function initStudent() {
 
 async function initIELTS() {
   return Promise.all(defIELTS.map(async (v) => {
-    const s = new Abscence();
-    s.id = JSON.parse(v['学号']);
-    s.dateFrom = new Date(v['开始日期']);
-    s.dateTo = new Date(v['结束日期']);
-    s.weekDays = JSON.parse(v['星期']);
-    s.reason = '事假';
-    s.detailedReason = '雅思';
+    const s = new Abscence({
+      id: JSON.parse(`"0${v['学号']}"`),
+      student: new Student({ id: JSON.parse(v['学号'])}),
+      reason: '事假',
+      detailedReason: '雅思',
+      dateFrom: new Date(v['开始日期']),
+      dateTo: new Date(v['结束日期']),
+      weekDays: JSON.parse(`"${v['星期']}"`),
+      lessons: [10],
+    });
+    await s.insertToDB();
   }));
 }
 

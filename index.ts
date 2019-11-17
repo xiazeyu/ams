@@ -1,4 +1,15 @@
-process.env.DB_ADDRESS = './data/storedb.json';
+const fs = require('fs');
+const dDate = new Date(),
+      dYestday = new Date(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() - 1),
+      sNow = `-${dDate.getFullYear()}-${dDate.getMonth()}-${dDate.getDate()}`,
+      sYestday = `-${dYestday.getFullYear()}-${dYestday.getMonth()}-${dYestday.getDate()}`;
+if (fs.existSync(`./data/storedb${sYestday}.json`)){
+  const readable = fs.createReadStream(`./data/storedb${sYestday}.json`),
+        writable = fs.createWriteStream(`./data/storedb${sNow}.json`);
+  readable.pipe(writable);
+}
+process.env.DB_ADDRESS = `./data/storedb${sNow}.json`;
+
 
 import { index, Student, Abscence } from './src/table';
 import { defStu } from './data/defStu.js'; // "姓名", 学号", 手机号"
@@ -26,7 +37,7 @@ async function initStudent() {
 async function initIELTS() {
   return Promise.all(defIELTS.map(async (v) => {
     const s = new Abscence({
-      id: JSON.parse(`"0${v['学号']}"`),
+      id: index.abs.length,
       student: new Student({ id: JSON.parse(v['学号'])}),
       reason: '事假',
       detailedReason: '雅思',

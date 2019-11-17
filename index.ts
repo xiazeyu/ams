@@ -41,6 +41,22 @@ async function initIELTS() {
 
 async function playground() {
 
+  return Promise.all(index.abs.map(async (v) => {
+    const s = new Abscence({
+      id: v,
+    });
+    await s.retriveFromDB();
+    return await s.getCurrStatus(10);
+  })).then((r) => {
+    console.log(r);
+    console.log(r.reduce((acc, cur) => {
+      return acc[cur.status]++, acc;
+    }, {
+      '到场': 0,
+      '事假': 0,
+    }));
+    return undefined;
+  });
 }
 
 (async () => {

@@ -285,8 +285,8 @@ describe('Table - layer 3', () => {
         }),
         reason: '事假',
         detailedReason: '喝茶2',
-        dateFrom: new Date(new Date().getYear(), new Date().getMonth()),
-        dateTo: new Date(new Date().getYear(), new Date().getMonth()),
+        dateFrom: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
+        dateTo: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
         weekDays: [new Date().getDay()],
       });
       test('insertTestStuToDB()', async () => expect(await testStu.insertToDB()).toBeInstanceOf(Table.Student));
@@ -315,8 +315,8 @@ describe('Table - layer 3', () => {
           for (let j = 1; j <= 12; j++)
             expect(await Test5.getStatus(new Date(2019, 10, i), j)).toStrictEqual({
               name: 'Jack',
-              status: (((j >= 1) && (j <= 4)) && ((i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '事假' : '到场',
-              detailedReason: (((j >= 1) && (j <= 4)) && ((i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '喝茶' : '',
+              status: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '事假' : '到场',
+              detailedReason: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '喝茶' : '',
             });
       })
       test('getCurrStatus(Test6)', async () => {

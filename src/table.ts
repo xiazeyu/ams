@@ -229,6 +229,6 @@ export class Abscence extends Table implements ITable, IAbscence {
     };
   }
   async getCurrStatus(lesson: lesson): Promise<IStuStatus> {
-    return await this.getStatus(new Date(), lesson);
+    return await this.getStatus(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), lesson);
   }
 }

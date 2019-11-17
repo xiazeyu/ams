@@ -178,22 +178,6 @@ export class Student extends Table implements ITable, IStudent {
       return this;
     });
   }
-  async getStatus(time: Date, lesson: number): Promise<IStuStatus> {
-    return {
-      name: '',
-      status: '到场',
-      reason: '',
-      detailedReason: '',
-    };
-  }
-  async getCurrStatus(): Promise<IStuStatus> {
-    return {
-      name: '',
-      status: '到场',
-      reason: '',
-      detailedReason: '',
-    };
-  }
 }
 
 export class Abscence extends Table implements ITable, IAbscence {
@@ -227,7 +211,9 @@ export class Abscence extends Table implements ITable, IAbscence {
     await index.delID('abs', this.id);
     return super.deleteFromDB();
   }
-  async isActive(time: Date, lesson: number): Promise<boolean> {
+  isActive(time: Date, lesson: lesson): boolean {
+    if(!this.lessons.includes(lesson))
+      return false;
     if ((this.dateFrom <= time) && (this.dateTo >= time)){
       if (!this.weekDays.length) {
         return this.weekDays.includes(time.getUTCDay() as weekDay);
@@ -235,5 +221,21 @@ export class Abscence extends Table implements ITable, IAbscence {
       return true;
     }
     return false;
+  }
+  async getStatus(time: Date, lesson: lesson): Promise<IStuStatus> {
+    return {
+      name: '',
+      status: '到场',
+      reason: '',
+      detailedReason: '',
+    };
+  }
+  async getCurrStatus(): Promise<IStuStatus> {
+    return {
+      name: '',
+      status: '到场',
+      reason: '',
+      detailedReason: '',
+    };
   }
 }

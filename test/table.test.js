@@ -117,6 +117,54 @@ describe('Table - layer 3', () => {
       test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Student));
       test('checkIndex(stu)', () => expect(Table.index.stu).toStrictEqual([]));
     });
+    describe('Student(save & load', () => {
+      let Test = new Table.Student({
+        id: 123,
+      });
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Student));
+      test('id', () => expect(Test.id).toBe(123));
+      test('name', () => expect(Test.name).toBe('NOTFOUND'));
+      test('phone', () => expect(Test.phone).toBe(0));
+
+      Test = new Table.Student({
+        id: 111,
+        name: 'Bob',
+        phone: 1234,
+      });
+      test('insertToDB()', async () => expect(await Test.insertToDB()).toBeInstanceOf(Table.Student));
+      Test = new Table.Student({
+        id: 111,
+      });
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Student));
+      test('id', () => expect(Test.id).toBe(111));
+      test('name', () => expect(Test.name).toBe('Bob'));
+      test('phone', () => expect(Test.phone).toBe(1234));
+      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Student));
+    });
+    describe('Student(fullTest)', () => {
+      const Test = new Table.Student();
+      test('getByName()', async () => {
+        Test.id = 111;
+        Test.name = "Bob";
+        Test.phone = 123456;
+        await Test.insertToDB();
+        Test.id = 222;
+        Test.name = "Alice";
+        Test.phone = 654321;
+        await Test.insertToDB();
+        Test.id = 333;
+        await Test.getByName('Bob');
+        expect(Test.id).toBe(111);
+        expect(Test.name).toBe('Bob');
+        expect(Test.phone).toBe(123456);
+        await Test.deleteFromDB();
+        await Test.getByName('Alice');
+        expect(Test.id).toBe(222);
+        expect(Test.name).toBe('Alice');
+        expect(Test.phone).toBe(654321);
+        await Test.deleteFromDB();
+      });
+    });
   });
 
   describe('Abscence', () => {
@@ -137,18 +185,71 @@ describe('Table - layer 3', () => {
       test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
       test('checkIndex(stu)', () => expect(Table.index.abs).toStrictEqual([]));
     });
-    describe('Abscence(fullTest)', () => {
-      const Test = new Table.Abscence();
-      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
+    describe('Abscence(save & load', () => {
+      const testStu = new Table.Student({
+        id: 123,
+        name: 'Jack',
+        phone: 3333,
+      });
+      test('insertTestStuToDB()', async () => expect(await testStu.insertToDB()).toBeInstanceOf(Table.Student));
+
+      let Test = new Table.Abscence({
+        id: 123,
+      });
       test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Abscence));
       test('id', () => expect(Test.id).toBe(0));
       test('student', () => expect(Test.student.id).toBe(0));
       test('reason', () => expect(Test.reason).toBe('NOTFOUND'));
       test('detailedReason', () => expect(Test.detailedReason).toBe('NOTFOUND'));
-      test('dateFrom', () => expect(Test.dateFrom.toDateString()).toBe('Wed Dec 04 2019'));
-      test('dateTo', () => expect(Test.dateTo.toDateString()).toBe('Thu Dec 05 2019'));
+      test('dateFrom', () => expect(Test.dateFrom).toEqual(new Date('Wed Dec 04 2019')));
+      test('dateTo', () => expect(Test.dateTo).toEqual(new Date('Thu Dec 05 2019')));
       test('weekDays', () => expect(Test.weekDays).toStrictEqual([]));
       test('lessons', () => expect(Test.lessons).toStrictEqual([]));
+
+      Test = new Table.Abscence({
+        id: 111,
+        student: new Table.Student({
+          id: 123,
+        }),
+        reason: '事假',
+        detailedReason: '喝茶',
+        dateFrom: new Date(2019, 10, 15),
+        dateTo: new Date(2019, 11, 16),
+        weekDays: [0, 6],
+        lessons: [1, 2, 3, 4],
+      });
+      test('insertToDB()', async () => expect(await Test.insertToDB()).toBeInstanceOf(Table.Abscence));
+      Test = new Table.Abscence({
+        id: 111,
+      });
+      test('retriveFromDB()', async () => expect(await Test.retriveFromDB()).toBeInstanceOf(Table.Abscence));
+      test('id', () => expect(Test.id).toBe(111));
+      test('student', () => expect(Test.student.id).toBe(123));
+      test('student', () => expect(Test.student.name).toBe('Jack'));
+      test('student', () => expect(Test.student.phone).toBe(3333));
+      test('reason', () => expect(Test.reason).toBe('事假'));
+      test('detailedReason', () => expect(Test.detailedReason).toBe('喝茶'));
+      test('dateFrom', () => expect(Test.dateFrom).toEqual(new Date(2019, 10, 15)));
+      test('dateTo', () => expect(Test.dateTo).toEqual(new Date(2019, 11, 16)));
+      test('weekDays', () => expect(Test.weekDays).toStrictEqual([0, 6]));
+      test('lessons', () => expect(Test.lessons).toStrictEqual([1, 2, 3, 4]));
+
+      test('deleteTestStuFromDB()', async () => expect(await testStu.deleteFromDB()).toBeInstanceOf(Table.Student));
+      test('deleteFromDB()', async () => expect(await Test.deleteFromDB()).toBeInstanceOf(Table.Abscence));
+
+    });
+    describe('Abscence(fullTest)', () => {
+      const Test = new Table.Abscence({
+        dateFrom: new Date(2019, 11, 13),
+        dateTo: new Date(2019, 11, 15),
+        lessons: [11, 12],
+      });
+      test('isActive()', () => {
+        expect(Test.isActive(new Date(2019, 11 ,12), 10)).toBe(false);
+        expect(Test.isActive(new Date(2019, 11 ,12), 10)).toBe(false);
+        expect(Test.isActive(new Date(2019, 11, 12), 10)).toBe(false);
+        expect(Test.isActive(new Date(2019, 11, 12), 10)).toBe(false);
+      });
     });
   });
 

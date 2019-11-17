@@ -216,7 +216,7 @@ export class Abscence extends Table implements ITable, IAbscence {
       return false;
     if ((this.dateFrom <= time) && (this.dateTo >= time)){
       if (this.weekDays.length)
-        return this.weekDays.includes(time.getUTCDay() as weekDay);
+        return this.weekDays.includes(time.getDay() as weekDay);
       return true;
     }
     return false;

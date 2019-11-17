@@ -251,35 +251,35 @@ describe('Table - layer 3', () => {
         lessons: [11, 12],
       });
       const Test3 = new Table.Abscence({
-        dateFrom: new Date(2019, 11, 13),
+        dateFrom: new Date(2019, 11, 3),
         dateTo: new Date(2019, 11, 15),
         weekDays: [3],
       });
       const Test4 = new Table.Abscence({
-        dateFrom: new Date(2019, 11, 13),
-        dateTo: new Date(2019, 11, 15),
+        dateFrom: new Date(2019, 11, 3),
+        dateTo: new Date(2019, 11, 25),
         lessons: [1],
         weekDays: [3, 4],
       });
       test('isActive(Test1)', () => {
-        for(const i = 12; i <= 16; i++)
-          for(const j = 1; j <= 12; j++)
-            expect(Test1.isActive(new Date(2019, 11, i), j)).toBe((i >= 13) && (i <= 15) ? true : false);
+        for (let i = 12; i <= 16; i++)
+          for (let j = 1; j <= 12; j++)
+            expect(Test1.isActive(new Date(2019, 11, i), j)).toBe((i === 13) ? true : false);
       });
       test('isActive(Test2)', () => {
-        for (const i = 12; i <= 16; i++)
-          for (const j = 1; j <= 12; j++)
+        for (let i = 12; i <= 16; i++)
+          for (let j = 1; j <= 12; j++)
             expect(Test2.isActive(new Date(2019, 11, i), j)).toBe((i >= 13) && (i <= 15) && (j >= 11) && (j <= 12) ? true : false);
       });
       test('isActive(Test3)', () => {
-        for (const i = 12; i <= 16; i++)
-          for (const j = 1; j <= 12; j++)
-            expect(Test3.isActive(new Date(2019, 11, i), j)).toBe((i === 13) ? true : false);
+        for (let i = 1; i <= 16; i++)
+          for (let j = 1; j <= 12; j++)
+            expect(Test3.isActive(new Date(2019, 11, i), j)).toBe(((i === 6) || (i === 13)) ? true : false);
       });
       test('isActive(Test4)', () => {
-        for (const i = 12; i <= 16; i++)
-          for (const j = 1; j <= 12; j++)
-            expect(Test4.isActive(new Date(2019, 11, i), j)).toBe((i >= 13) && (i <= 14) && (j === 1)? true : false);
+        for (let i = 1; i <= 26; i++)
+          for (let j = 1; j <= 12; j++)
+            expect(Test4.isActive(new Date(2019, 11, i), j)).toBe((((i === 6) || (i === 7) || (i === 13) || (i === 14) || (i === 20) || (i === 21)) && (j === 1)) ? true : false);
       });
     });
   });

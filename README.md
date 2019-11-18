@@ -2,6 +2,8 @@
 
 Attendance managing system.
 
+[![Build Status](https://travis-ci.org/xiazeyu/ams.svg?branch=master)](https://travis-ci.org/xiazeyu/ams)
+
 ## Structure
 
 ### Tables
@@ -26,7 +28,7 @@ lessonTime:
 
 9  17.05-17.50
 
-10 18.30-19.15 (Use as nighty self-study)
+10 18.30-19.15 (nighty self-study)
 
 11 19.20-20.05
 

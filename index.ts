@@ -1,21 +1,21 @@
 const fs = require('fs');
 const dDate = new Date(),
-      dYestday = new Date(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() - 1),
-      sNow = `-${dDate.getFullYear()}-${dDate.getMonth()}-${dDate.getDate()}`,
-      sYestday = `-${dYestday.getFullYear()}-${dYestday.getMonth()}-${dYestday.getDate()}`;
-if (fs.existSync(`./data/storedb${sYestday}.json`)){
+  dYestday = new Date(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() - 1),
+  sNow = `-${dDate.getFullYear()}-${dDate.getMonth()}-${dDate.getDate()}`,
+  sYestday = `-${dYestday.getFullYear()}-${dYestday.getMonth()}-${dYestday.getDate()}`;
+if (fs.existsSync(`./data/storedb${sYestday}.json`)) {
   const readable = fs.createReadStream(`./data/storedb${sYestday}.json`),
-        writable = fs.createWriteStream(`./data/storedb${sNow}.json`);
+    writable = fs.createWriteStream(`./data/storedb${sNow}.json`);
   readable.pipe(writable);
 }
 process.env.DB_ADDRESS = `./data/storedb${sNow}.json`;
 
 
 import { index, Student, Abscence } from './src/table';
-import { defStu } from './data/defStu.js'; // "姓名", 学号", 手机号"
-import { defIELTS } from './data/defIELTS.js'; // "姓名", "学号", "开始日期": "xxxx-xx-xx", "结束日期": "xxxx-xx-xx", "星期": "[x, x, ]"
+// import { defStu } from './data/defStu.js'; // "姓名", 学号", 手机号"
+// import { defIELTS } from './data/defIELTS.js'; // "姓名", "学号", "开始日期": "xxxx-xx-xx", "结束日期": "xxxx-xx-xx", "星期": "[x, x, ]"
 
-
+/*
 async function initStudent() {
   return Promise.all(defStu.map(async (v) => {
     const s = new Student();
@@ -35,10 +35,11 @@ async function initStudent() {
 }
 
 async function initIELTS() {
-  return Promise.all(defIELTS.map(async (v) => {
+  const offset = index.abs.length;
+  return Promise.all(defIELTS.map(async (v, ind) => {
     const s = new Abscence({
-      id: index.abs.length,
-      student: new Student({ id: JSON.parse(v['学号'])}),
+      id: offset + ind,
+      student: new Student({ id: JSON.parse(v['学号']) }),
       reason: '事假',
       detailedReason: '雅思',
       dateFrom: new Date(v['开始日期']),
@@ -49,30 +50,48 @@ async function initIELTS() {
     await s.insertToDB();
   }));
 }
+*/
 
 async function playground() {
 
-  return Promise.all(index.abs.map(async (v) => {
+  return Promise.all(index.abs.map(async (val) => {
     const s = new Abscence({
-      id: v,
+      id: val,
     });
     await s.retriveFromDB();
     return await s.getCurrStatus(10);
   })).then((r) => {
     console.log(r);
     console.log(r.reduce((acc, cur) => {
-      return acc[cur.status]++, acc;
+      return acc[cur.status]++ , acc;
     }, {
       '到场': 0,
+      '迟到': 0,
+      '早退': 0,
+      '旷课': 0,
       '事假': 0,
+      '病假': 0,
     }));
     return undefined;
   });
 }
 
+async function printS() {
+
+  return Promise.all(index.stu.map(async (val) => {
+    const s = new Student({
+      id: val,
+    });
+    await s.retriveFromDB();
+    return s;
+  }))
+
+}
+
 (async () => {
   await index.retriveFromDB();
-  await initStudent();
-  await initIELTS();
+  // await initStudent();
+  // await initIELTS();
   await playground();
+  // await printS();
 })()

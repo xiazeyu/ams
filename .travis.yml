@@ -1,0 +1,12 @@
+language: node_js
+node_js: node
+branches:
+  only:
+  - master
+cache:
+  directories:
+  - node_modules
+install:
+- npm install
+script:
+- npm run tsc && npm run test

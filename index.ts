@@ -125,8 +125,8 @@ async function addAbs() {
 }
 
 (async () => {
-  console.log(figlet.textSync('Welcome to AMS.', { font: 'ANSI Shadow' }));
-  console.log(figlet.textSync('Written by xiazeyu.'));
+  console.log(figlet.textSync('AMS', { font: 'ANSI Shadow' }));
+  console.log(figlet.textSync('by xiazeyu.'));
   await index.retriveFromDB();
   // await require('./firstRun').firstRun();
   while (1) {

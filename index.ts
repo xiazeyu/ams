@@ -1,5 +1,7 @@
 const fs = require('fs');
 const figlet = require('figlet');
+const inquirer = require('inquirer');
+
 const dDate = new Date(),
   dYestday = new Date(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() - 1),
   sNow = `-${dDate.getFullYear()}-${dDate.getMonth()}-${dDate.getDate()}`,
@@ -11,7 +13,7 @@ if (!fs.existsSync(`./data/db${sNow}.json`) && fs.existsSync(`./data/db${dYestda
 }
 process.env.DB_ADDRESS = `./data/db${sNow}.json`;
 
-import { index, Student, Abscence, lesson, IStuStatus } from './src/table';
+import { index, Student, Abscence, lesson, IStuStatus, statusArr, weekDayArr, lessonArr } from './src/table';
 
 function stats(staMap: Map<number, IStuStatus>): {} {
 
@@ -56,13 +58,100 @@ async function getCurrStatus(lesson: lesson): Promise<Map<number, IStuStatus>> {
 
 }
 
+async function addAbs() {
+  return await inquirer
+    .prompt([{
+      name: 'studentID',
+      message: 'Please input the student\'s ID:',
+      validate: ans => index.stu.includes(JSON.parse(ans)),
+    }, {
+      name: 'reason',
+      type: 'list',
+      message: 'Please choose the reason:',
+      choices: statusArr,
+    }, {
+      name: 'detailedReason',
+      message: 'Please input the detailed reason:',
+    }, {
+      name: 'dateFrom',
+      message: 'Please input the beginning date:',
+    }, {
+      name: 'dateTo',
+      message: 'Please input the ending date:',
+    }, {
+      name: 'weekDays',
+      type: 'checkbox',
+      message: 'Please choose the week days:',
+      choices: weekDayArr,
+    }, {
+      name: 'lessons',
+      type: 'checkbox',
+      message: 'Please choose the lessons:',
+      choices: lessonArr,
+    }])
+    .then(async (ans) => {
+      const data = {
+        id: index.abs.length,
+        student: new Student({ id: JSON.parse(ans.studentID) }),
+        reason: ans.reason,
+        detailedReason: ans.detailedReason,
+        dateFrom: new Date(ans.dateFrom),
+        dateTo: new Date(ans.dateTo),
+        weekDays: ans.weekDays || [],
+        lessons: ans.lessons || [],
+      };
+      const t = new Abscence(data);
+      console.log({
+        id: data.id,
+        studentID: data.student.id,
+        reason: data.reason,
+        detailedReason: ans.detailedReason,
+        dateFrom: data.dateFrom.toString(),
+        dateTo: data.dateTo.toString(),
+        weekDays: data.weekDays,
+        lessons: data.lessons,
+      });
+      await inquirer
+        .prompt([{
+          name: 'confirm',
+          type: 'confirm',
+          message: 'ARE U SURE?',
+        }])
+        .then(async (ans) => {
+          if (ans.confirm)
+            await t.insertToDB();
+        })
+    });
+}
+
 (async () => {
   console.log(figlet.textSync('Welcome to AMS.', { font: 'ANSI Shadow' }));
   console.log(figlet.textSync('Written by xiazeyu.'));
   await index.retriveFromDB();
   // await require('./firstRun').firstRun();
-  const res = await getCurrStatus(10);
-  const stat = stats(res);
-  console.log(res);
-  console.log(stat);
+  while (1) {
+    await inquirer
+      .prompt([{
+        name: 'action',
+        message: 'What to do:',
+        type: 'rawlist',
+        choices: [
+          { name: 'Show status.', value: 1 },
+          { name: 'Show statics.', value: 2 },
+          { name: 'Add abscent.', value: 3 },
+        ]
+      }]).then(async (ans) => {
+        switch (ans.action) {
+          case 1:
+            console.log(await getCurrStatus(10));
+            break;
+          case 2:
+            console.log(stats(await getCurrStatus(10)));
+            break;
+          case 3:
+            await addAbs();
+            break;
+        };
+      });
+  }
 })()

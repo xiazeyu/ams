@@ -7,6 +7,30 @@ type usedTables = ITable | IStudent | IAbscence | IIndex;
 export type weekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type lesson = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 type stuStatus = '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
+export const statusArr: stuStatus[] = ['到场', '迟到', '早退', '旷课', '事假', '病假'];
+export const weekDayArr = [
+  { name: 'Sunday(0)', value: 0 },
+  { name: 'Monday(1)', value: 1 },
+  { name: 'Tuesday(2)', value: 2 },
+  { name: 'Wednesday(3)', value: 3 },
+  { name: 'Thursday(4)', value: 4 },
+  { name: 'Friday(5)', value: 5 },
+  { name: 'Saturday(6)', value: 6 },
+];
+export const lessonArr = [
+  { name: '1(08.30-09.15)', value: 1 },
+  { name: '2(09.20-10.05)', value: 2 },
+  { name: '3(10.25-11.10)', value: 3 },
+  { name: '4(11.15-12.00)', value: 4 },
+  { name: '5(13.30-14.15)', value: 5 },
+  { name: '6(14.20-15.05)', value: 6 },
+  { name: '7(15.25-16.10)', value: 7 },
+  { name: '8(16.15-17.00)', value: 8 },
+  { name: '9(17.05-17.50)', value: 9 },
+  { name: '10(18.30-19.15)(nighty self-study)', value: 10 },
+  { name: '11(19.20-20.05)', value: 11 },
+  { name: '12(20.10-20.55)', value: 12 },
+];
 
 interface IRecordKey<T extends usedTypes> {
   key: string;

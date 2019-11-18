@@ -92,7 +92,7 @@ async function addAbs() {
     .then(async (ans) => {
       const data = {
         id: index.abs.length,
-        student: new Student({ id: JSON.parse(ans.studentID) }),
+        student: await new Student({ id: JSON.parse(ans.studentID) }).retriveFromDB(),
         reason: ans.reason,
         detailedReason: ans.detailedReason,
         dateFrom: new Date(ans.dateFrom),
@@ -103,6 +103,7 @@ async function addAbs() {
       const t = new Abscence(data);
       console.log({
         id: data.id,
+        studentName: data.student.name,
         studentID: data.student.id,
         reason: data.reason,
         detailedReason: ans.detailedReason,

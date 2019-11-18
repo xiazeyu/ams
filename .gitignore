@@ -9,5 +9,8 @@ src/*.js
 # Dependency directories
 node_modules
 
+# Coverage
+coverage
+
 # Data folder
 data

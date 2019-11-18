@@ -309,24 +309,32 @@ describe('Table - layer 3', () => {
         for (let i = 1; i <= 26; i++)
           for (let j = 1; j <= 12; j++)
             expect(Test4.isActive(new Date(2019, 10, i), j)).toBe((((i === 6) || (i === 7) || (i === 13) || (i === 14) || (i === 20) || (i === 21)) && (j === 1)) ? true : false);
-      })
+      });
       test('getStatus(Test5)', async () => {
+        await Test5.insertToDB();
         for (let i = 1; i <= 26; i++)
           for (let j = 1; j <= 12; j++)
             expect(await Test5.getStatus(new Date(2019, 10, i), j)).toStrictEqual({
+              id: 123,
               name: 'Jack',
+              phone: 3333,
               status: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '事假' : '到场',
               detailedReason: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '喝茶' : '',
             });
-      })
+        await Test5.deleteFromDB();
+      });
       test('getCurrStatus(Test6)', async () => {
+        await Test6.insertToDB();
         for (let j = 1; j <= 12; j++)
           expect(await Test6.getCurrStatus(j)).toStrictEqual({
+            id: 123,
             name: 'Jack',
+            phone: 3333,
             status: '事假',
             detailedReason: '喝茶2',
           });
-      })
+        await Test6.deleteFromDB();
+      });
       test('deleteTestStuFromDB()', async () => expect(await testStu.deleteFromDB()).toBeInstanceOf(Table.Student));
     });
   });

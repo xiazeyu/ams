@@ -4,8 +4,8 @@ export const db = new Database();
 
 type usedTypes = number | IStudent | string | Date | number | number[];
 type usedTables = ITable | IStudent | IAbscence | IIndex;
-type weekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-type lesson = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+export type weekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type lesson = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 type stuStatus = '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
 
 interface IRecordKey<T extends usedTypes> {
@@ -43,8 +43,7 @@ export interface IIndex {
   abs: number[];
 }
 
-export interface IStuStatus {
-  name: string;
+export interface IStuStatus extends IStudent {
   status: stuStatus;
   detailedReason?: string;
 }
@@ -221,9 +220,12 @@ export class Abscence extends Table implements ITable, IAbscence {
     return false;
   }
   async getStatus(time: Date, lesson: lesson): Promise<IStuStatus> {
+    await this.retriveFromDB();
     await this.student.retriveFromDB();
     return {
+      id: this.student.id,
       name: this.student.name,
+      phone: this.student.phone,
       status: this.isActive(time, lesson) ? this.reason : '到场' as stuStatus,
       detailedReason: this.isActive(time, lesson) ? this.detailedReason : '',
     };

@@ -5,7 +5,7 @@
   "main": "./index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "cross-env DB_ADDRESS=./data/storedb.json ts-node index.ts",
+    "start": "ts-node index.ts",
     "test": "cross-env DB_ADDRESS=./test/testdb.json jest --coverage"
   },
   "repository": {
@@ -20,8 +20,11 @@
   "homepage": "https://github.com/xiazeyu/ams#readme",
   "dependencies": {
     "cross-env": "^6.0.3",
+    "figlet": "^1.2.4",
+    "inquirer": "^7.0.0",
     "keyv": "^3.1.0",
     "keyv-file": "^0.1.13",
+    "koa": "^2.11.0",
     "ts-node": "^8.4.1"
   },
   "devDependencies": {

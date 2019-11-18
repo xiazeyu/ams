@@ -27,7 +27,7 @@ function stats(staMap: Map<number, IStuStatus>): {} {
   };
   staMap.forEach((val) => {
     res[val.status]++;
-  })
+  });
   return res;
 
 }
@@ -121,7 +121,7 @@ async function addAbs() {
         .then(async (ans) => {
           if (ans.confirm)
             await t.insertToDB();
-        })
+        });
     });
 }
 
@@ -130,7 +130,8 @@ async function addAbs() {
   console.log(figlet.textSync('by xiazeyu.'));
   await index.retriveFromDB();
   // await require('./firstRun').firstRun();
-  while (1) {
+  let flag = true;
+  while (flag) {
     await inquirer
       .prompt([{
         name: 'action',
@@ -140,19 +141,23 @@ async function addAbs() {
           { name: 'Show status.', value: 1 },
           { name: 'Show statics.', value: 2 },
           { name: 'Add abscent.', value: 3 },
+          { name: 'Exit.', value: 4 },
         ]
       }]).then(async (ans) => {
         switch (ans.action) {
-          case 1:
-            console.log(await getCurrStatus(10));
-            break;
-          case 2:
-            console.log(stats(await getCurrStatus(10)));
-            break;
-          case 3:
-            await addAbs();
-            break;
-        };
+        case 1:
+          console.log(await getCurrStatus(10));
+          break;
+        case 2:
+          console.log(stats(await getCurrStatus(10)));
+          break;
+        case 3:
+          await addAbs();
+          break;
+        case 4:
+          flag = false;
+          break;
+        }
       });
   }
-})()
+})();

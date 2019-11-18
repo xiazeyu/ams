@@ -175,7 +175,7 @@ export class Student extends Table implements ITable, IStudent {
         { key: 'name', defaultValue: '', getMethod: async a => JSON.parse(a || '"NOTFOUND"') as string, setMethod: async (a: string) => JSON.stringify(a) },
         { key: 'phone', defaultValue: 0, getMethod: async a => JSON.parse(a || '0') as number, setMethod: async (a: number) => JSON.stringify(a) },
       ],
-    }, val)
+    }, val);
   }
   async insertToDB(): Promise<this> {
     await index.addID('stu', this.id);
@@ -195,7 +195,7 @@ export class Student extends Table implements ITable, IStudent {
       this.id = resArr.reduce((acc, cur) => {
         if (cur.name === name) return cur.id;
         return acc;
-      }, 0)
+      }, 0);
       await this.retriveFromDB();
       return this;
     });

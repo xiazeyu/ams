@@ -146,11 +146,11 @@ describe('Table - layer 3', () => {
       const Test = new Table.Student();
       test('getByName()', async () => {
         Test.id = 111;
-        Test.name = "Bob";
+        Test.name = 'Bob';
         Test.phone = 123456;
         await Test.insertToDB();
         Test.id = 222;
-        Test.name = "Alice";
+        Test.name = 'Alice';
         Test.phone = 654321;
         await Test.insertToDB();
         Test.id = 333;

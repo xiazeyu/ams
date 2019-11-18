@@ -19,7 +19,7 @@ describe('Connection - layer 1', () => {
       delete process.env.DB_ADDRESS;
       expect(() => {
         new Connection.Connection();
-      }).toThrowError(`Connection expect a DB_ADDRESS, got undefined, check process.env.DB_ADDRESS.`);
+      }).toThrowError('Connection expect a DB_ADDRESS, got undefined, check process.env.DB_ADDRESS.');
       process.env.DB_ADDRESS = oldDBPath;
     });
   });

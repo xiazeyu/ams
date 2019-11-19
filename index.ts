@@ -2,20 +2,17 @@ const fs = require('fs');
 const figlet = require('figlet');
 const inquirer = require('inquirer');
 
-const dDate = new Date(),
-  dYestday = new Date(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() - 1),
-  sNow = `-${dDate.getFullYear()}-${dDate.getMonth()}-${dDate.getDate()}`,
-  sYestday = `-${dYestday.getFullYear()}-${dYestday.getMonth()}-${dYestday.getDate()}`;
-if (!fs.existsSync(`./data/db${sNow}.json`) && fs.existsSync(`./data/db${dYestday}.json`)) {
-  const readable = fs.createReadStream(`./data/db${sYestday}.json`),
-    writable = fs.createWriteStream(`./data/db${sNow}.json`);
+const sDateNow = `-${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
+if (!fs.existsSync(`./data/db${sDateNow}.json`) && fs.existsSync(`./data/db.json`)) {
+  const readable = fs.createReadStream('./data/db.json'),
+        writable = fs.createWriteStream(`./data/db${sDateNow}.json`);
   readable.pipe(writable);
 }
-process.env.DB_ADDRESS = `./data/db${sNow}.json`;
+process.env.DB_ADDRESS = './data/db.json';
 
 import { index, Student, Abscence, lesson, IStuStatus, statusArr, weekDayArr, lessonArr } from './src/table';
 
-function stats(staMap: Map<number, IStuStatus>): {} {
+function getStaStats(staMap: Map<number, IStuStatus>): {} {
 
   const res = {
     '到场': 0,
@@ -32,7 +29,7 @@ function stats(staMap: Map<number, IStuStatus>): {} {
 
 }
 
-async function getCurrStatus(lesson: lesson): Promise<Map<number, IStuStatus>> {
+async function getStatus(lesson: lesson): Promise<Map<number, IStuStatus>> {
 
   const allStus = await Promise.all(index.stu.map((val) => new Student({ id: val }).retriveFromDB())).then((stuArr) => {
     return stuArr.reduce((acc, cur) => {
@@ -119,8 +116,10 @@ async function addAbs() {
           message: 'ARE U SURE?',
         }])
         .then(async (ans) => {
-          if (ans.confirm)
+          console.log(await ans.confirm);
+          if (ans.confirm){
             await t.insertToDB();
+          }
         });
     });
 }
@@ -146,10 +145,10 @@ async function addAbs() {
       }]).then(async (ans) => {
         switch (ans.action) {
         case 1:
-          console.log(await getCurrStatus(10));
+            console.log(await getStatus(10));
           break;
         case 2:
-          console.log(stats(await getCurrStatus(10)));
+            console.log(getStaStats(await getStatus(10)));
           break;
         case 3:
           await addAbs();

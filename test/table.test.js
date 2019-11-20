@@ -266,29 +266,6 @@ describe('Table - layer 3', () => {
         name: 'Jack',
         phone: 3333,
       });
-      const Test5 = new Table.Abscence({
-        id: 111,
-        student: new Table.Student({
-          id: 123,
-        }),
-        reason: '事假',
-        detailedReason: '喝茶',
-        dateFrom: new Date(2019, 09, 15),
-        dateTo: new Date(2019, 10, 20),
-        weekDays: [0, 6],
-        lessons: [1, 2, 3, 4],
-      });
-      const Test6 = new Table.Abscence({
-        id: 123,
-        student: new Table.Student({
-          id: 123,
-        }),
-        reason: '事假',
-        detailedReason: '喝茶2',
-        dateFrom: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
-        dateTo: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
-        weekDays: [new Date().getDay()],
-      });
       test('insertTestStuToDB()', async () => expect(await testStu.insertToDB()).toBeInstanceOf(Table.Student));
       test('isActive(Test1)', () => {
         for (let i = 12; i <= 16; i++)
@@ -309,31 +286,6 @@ describe('Table - layer 3', () => {
         for (let i = 1; i <= 26; i++)
           for (let j = 1; j <= 12; j++)
             expect(Test4.isActive(new Date(2019, 10, i), j)).toBe((((i === 6) || (i === 7) || (i === 13) || (i === 14) || (i === 20) || (i === 21)) && (j === 1)) ? true : false);
-      });
-      test('getStatus(Test5)', async () => {
-        await Test5.insertToDB();
-        for (let i = 1; i <= 26; i++)
-          for (let j = 1; j <= 12; j++)
-            expect(await Test5.getStatus(new Date(2019, 10, i), j)).toStrictEqual({
-              id: 123,
-              name: 'Jack',
-              phone: 3333,
-              status: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '事假' : '到场',
-              detailedReason: (((j >= 1) && (j <= 4)) && ((i === 2) || (i === 3) || (i === 9) || (i === 10) || (i === 16) || (i === 17))) ? '喝茶' : '',
-            });
-        await Test5.deleteFromDB();
-      });
-      test('getCurrStatus(Test6)', async () => {
-        await Test6.insertToDB();
-        for (let j = 1; j <= 12; j++)
-          expect(await Test6.getCurrStatus(j)).toStrictEqual({
-            id: 123,
-            name: 'Jack',
-            phone: 3333,
-            status: '事假',
-            detailedReason: '喝茶2',
-          });
-        await Test6.deleteFromDB();
       });
       test('deleteTestStuFromDB()', async () => expect(await testStu.deleteFromDB()).toBeInstanceOf(Table.Student));
     });

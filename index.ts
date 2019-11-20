@@ -59,7 +59,8 @@ async function staticsMenu() {
       }]).then(async (ans) => {
         switch (ans.action) {
           case 1:
-            tmp = await getAllStuStatus(10);
+            tmp = await getAllStuStatus(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), 10);
+            console.log(getAllStuStatus(new Date(2019, 10, 20), 10));
             break;
           case 2:
             countStatus(tmp);
@@ -98,9 +99,9 @@ function countStatus(staMap: Map<number, IStuStatus>): {} {
 
 }
 
-async function getAllStuStatus(lesson: lesson): Promise<Map<number, IStuStatus>> {
+async function getAllStuStatus(date: Date, lesson: lesson): Promise<Map<number, IStuStatus>> {
 
-  const allStus = await Promise.all(index.stu.map((val) => new Student({ id: val }).retriveFromDB())).then((stuArr) => {
+  const allStus = await Promise.all(index.stu.map((val) => new Student({ id: val }).retriveFromDB())).then((stuArr: Student[]) => {
     return stuArr.reduce((acc, cur) => {
       return acc.set(cur.id, {
         name: cur.name,
@@ -112,20 +113,18 @@ async function getAllStuStatus(lesson: lesson): Promise<Map<number, IStuStatus>>
   });
 
   return Promise.all(index.abs.map((val) => new Abscence({ id: val }).retriveFromDB())).then(async (absObjArr: Abscence[]) => {
-    return await absObjArr.reduce(async (acc, cur) => {
-      const todayStatus = await cur.getTodayStatus(lesson);
-      acc.set(cur.id, Object.assign({}, acc.get(cur.id), {
-        status: cur.getTodayStatus(lesson),
-      }, todayStatus.detailedReason ? {
-        detailedReason: todayStatus.detailedReason,
-      } : {}));
+    return absObjArr.reduce((acc, cur) => {
+      if(cur.isActive(date, lesson))
+        acc.set(cur.id, Object.assign({}, acc.get(cur.id), {
+          status: cur.reason,
+        }, cur.detailedReason ? {detailedReason: cur.detailedReason} : {}));
       return acc;
     }, allStus);
   });
 
 }
 
-async function addMenu() {
+async function abscenceMenu() {
   while (1) {
     await inquirer
       .prompt([{
@@ -134,6 +133,8 @@ async function addMenu() {
         type: 'rawlist',
         choices: [
           { name: 'add Abscence record.', value: 1 },
+          { name: 'show Abscence record.', value: 1 }, // per student, all abscence, per day
+          { name: 'delete Abscence record.', value: 1 },
           { name: 'Exit.', value: -1 },
         ]
       }]).then(async (ans) => {
@@ -231,7 +232,7 @@ async function addAbs() {
         type: 'rawlist',
         choices: [
           { name: 'statics.', value: 1 },
-          { name: 'add.', value: 2 },
+          { name: 'Abscence.', value: 2 },
           { name: 'utilities.', value: 3 },
           { name: 'Exit.', value: -1 },
         ]
@@ -241,7 +242,7 @@ async function addAbs() {
             await staticsMenu();
             break;
           case 2:
-            await addMenu();
+            await abscenceMenu();
             break;
           case 3:
             await utilitiesMenu();

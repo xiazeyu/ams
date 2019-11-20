@@ -229,6 +229,10 @@ export class Abscence extends Table implements ITable, IAbscence {
     await index.addID('abs', this.id);
     return super.insertToDB();
   }
+  async retriveFromDB(): Promise<this> {
+    await this.student.retriveFromDB();
+    return super.retriveFromDB();
+  }
   async deleteFromDB(): Promise<this> {
     await index.delID('abs', this.id);
     return super.deleteFromDB();
@@ -242,18 +246,5 @@ export class Abscence extends Table implements ITable, IAbscence {
       return true;
     }
     return false;
-  }
-  async getStatus(time: Date, lesson: lesson): Promise<IStuStatus> {
-    await this.student.retriveFromDB();
-    return {
-      id: this.student.id,
-      name: this.student.name,
-      phone: this.student.phone,
-      status: this.isActive(time, lesson) ? this.reason : '未到' as stuStatus,
-      detailedReason: this.isActive(time, lesson) ? this.detailedReason : '',
-    };
-  }
-  async getTodayStatus(lesson: lesson): Promise<IStuStatus> {
-    return await this.getStatus(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), lesson);
   }
 }

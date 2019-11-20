@@ -6,8 +6,8 @@ type usedTypes = number | IStudent | string | Date | number | number[];
 type usedTables = ITable | IStudent | IAbscence | IIndex;
 export type weekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type lesson = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-type stuStatus = '到场' | '迟到' | '早退' | '旷课' | '事假' | '病假';
-export const statusArr: stuStatus[] = ['到场', '迟到', '早退', '旷课', '事假', '病假'];
+type stuStatus = '到场' | '迟到' | '早退' | '未到' | '事假' | '病假';
+export const statusArr: stuStatus[] = ['到场', '迟到', '早退', '未到', '事假', '病假'];
 export const weekDayArr = [
   { name: 'Sunday(0)', value: 0 },
   { name: 'Monday(1)', value: 1 },
@@ -244,17 +244,16 @@ export class Abscence extends Table implements ITable, IAbscence {
     return false;
   }
   async getStatus(time: Date, lesson: lesson): Promise<IStuStatus> {
-    await this.retriveFromDB();
     await this.student.retriveFromDB();
     return {
       id: this.student.id,
       name: this.student.name,
       phone: this.student.phone,
-      status: this.isActive(time, lesson) ? this.reason : '到场' as stuStatus,
+      status: this.isActive(time, lesson) ? this.reason : '未到' as stuStatus,
       detailedReason: this.isActive(time, lesson) ? this.detailedReason : '',
     };
   }
-  async getCurrStatus(lesson: lesson): Promise<IStuStatus> {
+  async getTodayStatus(lesson: lesson): Promise<IStuStatus> {
     return await this.getStatus(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), lesson);
   }
 }

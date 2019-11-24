@@ -4,7 +4,7 @@ import { defIELTS } from './data/defIELTS.js'; // "姓名", "学号", "开始日
 
 export async function firstRun(){
   await initStudent();
-  await initIELTS();
+  await initIELTSAbs();
 }
 async function initStudent() {
   return Promise.all(defStu.map(async (v) => {
@@ -24,7 +24,7 @@ async function initStudent() {
   });
 }
 
-async function initIELTS() {
+async function initIELTSAbs() {
   const offset = index.abs.length;
   return Promise.all(defIELTS.map(async (v, ind) => {
     const s = new Abscence({
